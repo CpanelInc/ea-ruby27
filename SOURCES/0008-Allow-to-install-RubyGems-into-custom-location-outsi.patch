@@ -1,0 +1,55 @@
+From e01057867b46cf9c1c3d5e71b685fcfb711ab6c4 Mon Sep 17 00:00:00 2001
+From: Julian Brown <julian.brown@cpanel.net>
+Date: Thu, 3 Sep 2020 12:01:54 -0500
+Subject: [PATCH] Allow to install RubyGems into custom location, outside of
+ Ruby tree.
+
+---
+ template/verconf.h.tmpl | 3 +++
+ tool/rbinstall.rb       | 8 ++++++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/template/verconf.h.tmpl b/template/verconf.h.tmpl
+index 9ba2bd6..2786935 100644
+--- a/template/verconf.h.tmpl
++++ b/template/verconf.h.tmpl
+@@ -36,6 +36,9 @@
+ % if C["RUBY_SEARCH_PATH"]
+ #define RUBY_SEARCH_PATH		"${RUBY_SEARCH_PATH}"
+ % end
++% if C["rubygemsdir"]
++#define RUBYGEMS_DIR           "${rubygemsdir}"
++% end
+ %
+ % R = {}
+ % R["ruby_version"] = '"RUBY_LIB_VERSION"'
+diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
+index 4d23e80..9343af2 100755
+--- a/tool/rbinstall.rb
++++ b/tool/rbinstall.rb
+@@ -343,6 +343,7 @@ if CONFIG["vendordir"]
+   vendorlibdir = CONFIG["vendorlibdir"]
+   vendorarchlibdir = CONFIG["vendorarchdir"]
+ end
++rubygemsdir = CONFIG["rubygemsdir"]
+ mandir = CONFIG["mandir", true]
+ docdir = CONFIG["docdir", true]
+ enable_shared = CONFIG["ENABLE_SHARED"] == 'yes'
+@@ -570,7 +571,14 @@ end
+ install?(:local, :comm, :lib) do
+   prepare "library scripts", rubylibdir
+   noinst = %w[*.txt *.rdoc *.gemspec]
++  noinst += %w[*ubygems.rb rubygems/ datadir.rb] if rubygemsdir
+   install_recursive(File.join(srcdir, "lib"), rubylibdir, :no_install => noinst, :mode => $data_mode)
++  if rubygemsdir
++    noinst = %w[obsolete.rb]
++    install_recursive(File.join(srcdir, "lib", "rubygems"), File.join(rubygemsdir, "rubygems"), :mode => $data_mode)
++    install_recursive(File.join(srcdir, "lib", "rbconfig"), File.join(rubygemsdir, "rbconfig"), :no_install => noinst, :mode => $data_mode)
++    install(File.join(srcdir, "lib", "rubygems.rb"), File.join(rubygemsdir, "rubygems.rb"), :mode => $data_mode)
++  end
+ end
+ 
+ install?(:local, :comm, :hdr, :'comm-hdr') do
+-- 
+2.25.1
+

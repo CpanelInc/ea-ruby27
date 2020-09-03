@@ -1,0 +1,28 @@
+From 023693aec56f569679e75aa48357806b1b565814 Mon Sep 17 00:00:00 2001
+From: Julian Brown <julian.brown@cpanel.net>
+Date: Thu, 3 Sep 2020 09:19:15 -0500
+Subject: [PATCH 06/13] Allow to configure libruby.so placement.
+
+---
+ configure.ac | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index a8e94f3..9d90390 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3102,6 +3102,11 @@ AS_IF([test ${multiarch+set}], [
+ ])
+ 
+ archlibdir='${libdir}/${arch}'
++AC_ARG_WITH(archlibdir,
++       AS_HELP_STRING([--with-archlibdir=DIR],
++              [prefix for libruby [[LIBDIR/ARCH]]]),
++       [archlibdir="$withval"])
++
+ sitearchlibdir='${libdir}/${sitearch}'
+ archincludedir='${includedir}/${arch}'
+ sitearchincludedir='${includedir}/${sitearch}'
+-- 
+2.25.1
+

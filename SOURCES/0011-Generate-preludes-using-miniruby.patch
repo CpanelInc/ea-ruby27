@@ -1,0 +1,25 @@
+From c62eab23bc983d4a8b1061acdc5ea03282429184 Mon Sep 17 00:00:00 2001
+From: Julian Brown <julian.brown@cpanel.net>
+Date: Thu, 3 Sep 2020 09:41:45 -0500
+Subject: [PATCH 11/13] Generate preludes using miniruby.
+
+---
+ common.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/common.mk b/common.mk
+index 824d6f6..a597ced 100644
+--- a/common.mk
++++ b/common.mk
+@@ -1085,7 +1085,7 @@ vm_call_iseq_optimized.inc: $(srcdir)/tool/mk_call_iseq_optimized.rb
+ 
+ $(MINIPRELUDE_C): $(COMPILE_PRELUDE) $(BUILTIN_RB_SRCS)
+ 	$(ECHO) generating $@
+-	$(Q) $(BASERUBY) $(srcdir)/tool/generic_erb.rb -I$(srcdir) -o $@ \
++	$(Q) $(MINIRUBY) $(srcdir)/tool/generic_erb.rb -I$(srcdir) -o $@ \
+ 		$(srcdir)/template/prelude.c.tmpl $(BUILTIN_RB_SRCS)
+ 
+ $(GOLF_PRELUDE_C): $(COMPILE_PRELUDE) {$(srcdir)}golf_prelude.rb
+-- 
+2.25.1
+
