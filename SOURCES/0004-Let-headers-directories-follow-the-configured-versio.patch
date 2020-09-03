@@ -1,0 +1,25 @@
+From ebf7d9220ea2110b71599662f797eca09d05e907 Mon Sep 17 00:00:00 2001
+From: Julian Brown <julian.brown@cpanel.net>
+Date: Thu, 3 Sep 2020 09:01:22 -0500
+Subject: [PATCH 04/13] Let headers directories follow the configured version
+
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 46784f8..5b31c56 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -98,7 +98,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
+ RUBYW_BASE_NAME=`echo rubyw | sed "$program_transform_name"`
+ AC_SUBST(RUBY_BASE_NAME)
+ AC_SUBST(RUBYW_BASE_NAME)
+-AC_SUBST(RUBY_VERSION_NAME, '${RUBY_BASE_NAME}-${ruby_version}')
++AC_SUBST(RUBY_VERSION_NAME, '${RUBY_BASE_NAME}-${ruby_version_dir_name}')
+ 
+ AC_CANONICAL_TARGET
+ test x"$target_alias" = x &&
+-- 
+2.25.1
+

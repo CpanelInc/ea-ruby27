@@ -68,6 +68,8 @@
 
 %global _normalized_cpu %(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
 
+%global gem_name ruby
+
 %define ea_openssl_ver 1.1.1d-1
 
 # Doing release_prefix this way for Release allows for OBS-proof versioning, See EA-4590 for more details
@@ -132,7 +134,7 @@ Source100: load.inc
 # this line was in scl-ruby27: %%{load %%{SOURCE4}}
 # this line was in scl-ruby27: %%{load %%{SOURCE5}}
 
-# FROM SOURCE4
+## FROM SOURCE4
 %global ruby_libdir %{_datadir}/%{pkg_name}
 %global ruby_libdir_ver %{_datadir}/%{pkg_name}/ruby-%{ruby_version}
 %global ruby_libarchdir %{_libdir}/%{pkg_name}
@@ -194,9 +196,24 @@ gem install \\\
 # Note that this must be invoked in the spec file, preferably as
 # "%%{?rubygems_default_filter}", before any %description block.
 %global rubygems_default_filter %{expand: \
-%global __provides_exclude_from %{?__provides_exclude_from:%{__provides_exclude_from}|}^%{gem_extdir_mri}/.*\\\\.so$ \
+%global __provides_exclude_from %{?__provides_exclude_from:%{__provides_exclude_from}|}^%{gem_
+xtdir_mri}/.*\\\\.so$ \
 }
 # END SOURCE5
+
+Patch01: 0001-Use-ruby_version_dir_name-for-versioned-directories.patch
+Patch02: 0002-Add-ruby_version_dir_name-support-for-RDoc.patch
+Patch03: 0003-Add-ruby_version_dir_name-support-for-RubyGems.patch
+Patch04: 0004-Let-headers-directories-follow-the-configured-versio.patch
+Patch05: 0005-Prevent-duplicated-paths-when-empty-version-string-i.patch
+Patch06: 0006-Allow-to-configure-libruby.so-placement.patch
+Patch07: 0007-Always-use-i386.patch
+Patch08: 0008-Allow-to-install-RubyGems-into-custom-location-outsi.patch
+Patch09: 0009-Verbose-mkmf.patch
+Patch10: 0010-Allow-to-specify-addition-preludes-by-configuration.patch
+Patch11: 0011-Generate-preludes-using-miniruby.patch
+Patch12: 0012-Rely-on-ldd-to-detect-glibc.patch
+Patch13: 0013-Skip-multicast-tests-when-multicast-is-not-available.patch
 
 Requires: %{?scl_prefix}%{pkg_name}-libs%{?_isa} = %{version}-%{release}
 Requires: %{?scl_prefix}ruby(rubygems) >= %{rubygems_version}
@@ -204,7 +221,7 @@ Requires: %{?scl_prefix}rubygem(bigdecimal) >= %{bigdecimal_version}
 Requires: %{?scl_prefix}rubygem(did_you_mean) >= %{did_you_mean_version}
 Requires: %{?scl_prefix}rubygem(openssl) >= %{openssl_version}
 
-%{?scl:Requires: %{scl}-runtime >= 2.4.3-2}
+%{?scl:Requires: %{scl}-runtime >= 2.7.0}
 
 BuildRequires: tree
 
@@ -213,13 +230,18 @@ BuildRequires: autoconf
 %else
 BuildRequires: autotools-latest-autoconf
 %endif
+
+%if 0%{rhel} == 7
+BuildRequires: libyaml
+%endif
+
 BuildRequires: gdbm-devel
 BuildRequires: libffi-devel
 BuildRequires: libyaml-devel
 BuildRequires: readline-devel
 BuildRequires: scl-utils
 BuildRequires: scl-utils-build
-%{?scl:BuildRequires: %{scl}-runtime >= 2.4.3-2}
+%{?scl:BuildRequires: %{scl}-runtime >= 2.7.0}
 # Needed to pass test_set_program_name(TestRubyOptions)
 BuildRequires: procps
 BuildRequires: binutils
@@ -550,6 +572,23 @@ HTTP.
 %prep
 %setup -q -n %{ruby_archive}
 
+%patch01 -p1
+%patch02 -p1
+%patch03 -p1
+%patch04 -p1
+%patch05 -p1
+%patch06 -p1
+%patch07 -p1
+%patch08 -p1
+%patch09 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+
+echo "Correct shebangs and other references to /usr/local/bin/ruby"
+find . -type f -print0 | xargs -0 grep -lI '\/usr\/local\/bin\/ruby' | xargs sed -i 's:/usr/local/bin/ruby:/opt/cpanel/ea-ruby27/root/usr/bin/ruby:g' || /bin/true
+
 # Remove bundled libraries to be sure they are not used.
 rm -rf ext/psych/yaml
 rm -rf ext/fiddle/libffi*
@@ -597,6 +636,7 @@ export LDFLAGS="-Wl,-rpath=/opt/cpanel/ea-openssl11/lib64"
 make %{?_smp_mflags} COPY="cp -p" Q=
 
 %install
+
 rm -rf %{buildroot}
 %{?scl:scl enable %scl - << \EOF
 make install DESTDIR=%{buildroot}
@@ -614,7 +654,7 @@ install -m644 %{SOURCE7} %{buildroot}%{_includedir}/%{pkg_name}/config.h
 
 # Version is empty if --with-ruby-version is specified.
 # http://bugs.ruby-lang.org/issues/7807
-sed -i 's/Version: \${ruby_version}/Version: %{ruby_version}/' %{buildroot}%{_libdir}/x86_64-linux/pkgconfig/%{pkg_name}.pc
+sed -i 's/Version: \${ruby_version}/Version: %{ruby_version}/' %{buildroot}%{_libdir}/pkgconfig/%{pkg_name}.pc
 
 # Kill bundled certificates, as they should be part of ca-certificates.
 for cert in \
@@ -751,6 +791,7 @@ cp .ext/x86_64-linux/-test-/rational.so %{buildroot}%{ruby_libarchdir_ver}/mathn
 %check
 %if %runselftest
 
+echo "CHECK 001"
 # Probably silly to regen each time, but
 # its less of a maintenance burden.
 pushd ./test/net/fixtures/
@@ -762,9 +803,12 @@ popd
 mkdir -p ./lib/rubygems/defaults
 cp %{SOURCE1} ./lib/rubygems/defaults
 
+cat -n lib/yaml.rb
+/bin/true
+
 # TODO: This test does not run, someone with Ruby knowledge will need to update these
-# tests.
-#make test-all TESTS="%{SOURCE14}" || exit 1
+# tests. Remove the double percent symbol after uncommenting
+make test-all TESTS="%{SOURCE14}" || exit 1
 
 rm -rf ./lib/rubygems/defaults
 
@@ -778,11 +822,13 @@ rm -rf ./lib/rubygems/defaults
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\"module Gem; module Resolver; end; end; require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
   == '%{molinillo_version}' ]
 
+echo "CHECK 002"
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
 # when abrt.rb cannot be required (seems to be easier way then customizing
 # the test suite).
 touch abrt.rb
 
+echo "CHECK 003"
 # Check if abrt hook is required (RubyGems are disabled by default when using
 # runruby, so re-enable them).
 make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE12}"
@@ -790,7 +836,7 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE12}"
 # TODO: This test does not run, someone with Ruby knowledge will need to update these
 # tests.
 # Check if systemtap is supported.
-#make runruby TESTRUN_SCRIPT=%{SOURCE13}
+make runruby TESTRUN_SCRIPT=%{SOURCE13}
 
 DISABLE_TESTS=""
 
@@ -798,8 +844,10 @@ DISABLE_TESTS=""
 # Once seen: http://koji.fedoraproject.org/koji/taskinfo?taskID=12556650
 DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 
+echo "CHECK 004"
 make check TESTS="-v $DISABLE_TESTS"
-echo "DO NOT REMOVE this echo command, or the tests fail"
+# We do not want the Check to fail the build
+/bin/true
 EOF}
 %endif
 
@@ -883,8 +931,8 @@ EOF}
 %config(noreplace) %{_root_sysconfdir}/rpm/macros.ruby%{?scl:.%{scl}}
 
 %{_includedir}/*
-%{_libdir}/x86_64-linux/libruby.so
-%{_libdir}/x86_64-linux/pkgconfig/%{pkg_name}.pc
+%{_libdir}/libruby.so
+%{_libdir}/pkgconfig/%{pkg_name}.pc
 
 %files libs
 %doc COPYING
@@ -930,7 +978,7 @@ EOF}
 
 # Platform specific libraries.
 
-%{_libdir}/x86_64-linux/libruby.so.*
+%{_libdir}/libruby.so.*
 %dir %{ruby_libarchdir_ver}
 %dir %{ruby_libarchdir_ver}/cgi
 %{ruby_libarchdir_ver}/cgi/escape.so

@@ -1,0 +1,58 @@
+From ba4a7bb0cdaf9669a15934465c930e9eaabd6635 Mon Sep 17 00:00:00 2001
+From: Julian Brown <julian.brown@cpanel.net>
+Date: Thu, 3 Sep 2020 09:37:28 -0500
+Subject: [PATCH 10/13] Allow to specify addition preludes by configuration
+
+---
+ common.mk            | 2 +-
+ configure.ac         | 7 +++++++
+ template/Makefile.in | 2 ++
+ 3 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/common.mk b/common.mk
+index fd14ab6..824d6f6 100644
+--- a/common.mk
++++ b/common.mk
+@@ -163,7 +163,7 @@ ALLOBJS       = $(NORMALMAINOBJ) $(MINIOBJS) $(COMMONOBJS) $(INITOBJS)
+ GOLFOBJS      = goruby.$(OBJEXT) golf_prelude.$(OBJEXT)
+ 
+ DEFAULT_PRELUDES = $(GEM_PRELUDE)
+-PRELUDE_SCRIPTS = $(DEFAULT_PRELUDES)
++PRELUDE_SCRIPTS = $(srcdir)/prelude.rb $(srcdir)/enc/prelude.rb $(DEFAULT_PRELUDES) $(OPTIONAL_PRELUDES)
+ GEM_PRELUDE   =
+ PRELUDES      = {$(srcdir)}miniprelude.c
+ GOLFPRELUDES  = {$(srcdir)}golf_prelude.c
+diff --git a/configure.ac b/configure.ac
+index c95b34b..cadaba4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3885,6 +3885,13 @@ AC_SUBST(rubyarchhdrdir)dnl
+ AC_SUBST(sitearchhdrdir)dnl
+ AC_SUBST(vendorarchhdrdir)dnl
+ 
++AC_ARG_WITH(prelude,
++       AS_HELP_STRING([--with-prelude=FILE-LIST], [specify additional preludes separated by space]),
++       [prelude=$withval])
++if test "$prelude" != ""; then
++    AC_SUBST(OPTIONAL_PRELUDES, $prelude)
++fi
++
+ AC_ARG_WITH(mantype,
+ 	AS_HELP_STRING([--with-mantype=TYPE], [specify man page type; TYPE is one of man and doc]),
+ 		[
+diff --git a/template/Makefile.in b/template/Makefile.in
+index 3845f02..b60d532 100644
+--- a/template/Makefile.in
++++ b/template/Makefile.in
+@@ -152,6 +152,8 @@ XRUBY_RUBYLIBDIR = @XRUBY_RUBYLIBDIR@
+ XRUBY_RUBYHDRDIR = @XRUBY_RUBYHDRDIR@
+ BOOTSTRAPRUBY = @BOOTSTRAPRUBY@
+ 
++OPTIONAL_PRELUDES = @OPTIONAL_PRELUDES@
++
+ COROUTINE_H = @X_COROUTINE_H@
+ COROUTINE_OBJ = $(COROUTINE_H:.h=.@OBJEXT@)
+ COROUTINE_SRC = @X_COROUTINE_SRC@
+-- 
+2.25.1
+

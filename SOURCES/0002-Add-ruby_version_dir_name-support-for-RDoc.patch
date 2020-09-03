@@ -1,0 +1,39 @@
+From 27dd3667e4004fb2ae437c38bb356f87e536b43e Mon Sep 17 00:00:00 2001
+From: Julian Brown <julian.brown@cpanel.net>
+Date: Thu, 3 Sep 2020 08:43:58 -0500
+Subject: [PATCH 02/13] Add ruby_version_dir_name support for RDoc.
+
+---
+ lib/rdoc/ri/paths.rb | 2 +-
+ tool/rbinstall.rb    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/rdoc/ri/paths.rb b/lib/rdoc/ri/paths.rb
+index f76721d..3315627 100644
+--- a/lib/rdoc/ri/paths.rb
++++ b/lib/rdoc/ri/paths.rb
+@@ -10,7 +10,7 @@ module RDoc::RI::Paths
+   #:stopdoc:
+   require 'rbconfig'
+ 
+-  version = RbConfig::CONFIG['ruby_version']
++  version = RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
+ 
+   BASE    = if RbConfig::CONFIG.key? 'ridir' then
+               File.join RbConfig::CONFIG['ridir'], version
+diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
+index 0603906..4d23e80 100755
+--- a/tool/rbinstall.rb
++++ b/tool/rbinstall.rb
+@@ -433,7 +433,7 @@ end
+ 
+ install?(:doc, :rdoc) do
+   if $rdocdir
+-    ridatadir = File.join(CONFIG['ridir'], CONFIG['ruby_version'], "system")
++    ridatadir = File.join(CONFIG['ridir'], CONFIG['ruby_version_dir_name'] || CONFIG['ruby_version'], "system")
+     prepare "rdoc", ridatadir
+     install_recursive($rdocdir, ridatadir, :no_install => rdoc_noinst, :mode => $data_mode)
+   end
+-- 
+2.25.1
+

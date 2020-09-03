@@ -1,0 +1,75 @@
+From 69b57663406adf8a5d3fe5da12187d44645d4e9f Mon Sep 17 00:00:00 2001
+From: Julian Brown <julian.brown@cpanel.net>
+Date: Thu, 3 Sep 2020 08:59:03 -0500
+Subject: [PATCH 03/13] Add ruby_version_dir_name support for RubyGems.
+
+---
+ lib/rubygems/defaults.rb  | 9 +++++----
+ test/rubygems/test_gem.rb | 5 +++--
+ 2 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/lib/rubygems/defaults.rb b/lib/rubygems/defaults.rb
+index d4ff4a2..3f9a5bf 100644
+--- a/lib/rubygems/defaults.rb
++++ b/lib/rubygems/defaults.rb
+@@ -32,13 +32,13 @@ module Gem
+              [
+                File.dirname(RbConfig::CONFIG['sitedir']),
+                'Gems',
+-               RbConfig::CONFIG['ruby_version']
++               RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
+              ]
+            else
+              [
+                RbConfig::CONFIG['rubylibprefix'],
+                'gems',
+-               RbConfig::CONFIG['ruby_version']
++               RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
+              ]
+            end
+ 
+@@ -75,7 +75,8 @@ module Gem
+ 
+   def self.user_dir
+     parts = [Gem.user_home, '.gem', ruby_engine]
+-    parts << RbConfig::CONFIG['ruby_version'] unless RbConfig::CONFIG['ruby_version'].empty?
++    ruby_version_dir_name = RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
++    parts << ruby_version_dir_name unless ruby_version_dir_name.empty?
+     File.join parts
+   end
+ 
+@@ -158,7 +159,7 @@ module Gem
+     return nil unless RbConfig::CONFIG.key? 'vendordir'
+ 
+     File.join RbConfig::CONFIG['vendordir'], 'gems',
+-              RbConfig::CONFIG['ruby_version']
++              RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
+   end
+ 
+   ##
+diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
+index 6d223b7..322bbd9 100644
+--- a/test/rubygems/test_gem.rb
++++ b/test/rubygems/test_gem.rb
+@@ -1353,7 +1353,8 @@ class TestGem < Gem::TestCase
+ 
+   def test_self_user_dir
+     parts = [@userhome, '.gem', Gem.ruby_engine]
+-    parts << RbConfig::CONFIG['ruby_version'] unless RbConfig::CONFIG['ruby_version'].empty?
++    ruby_version_dir_name = RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
++    parts << ruby_version_dir_name unless ruby_version_dir_name.empty?
+ 
+     assert_equal File.join(parts), Gem.user_dir
+   end
+@@ -1429,7 +1430,7 @@ class TestGem < Gem::TestCase
+     vendordir(File.join(@tempdir, 'vendor')) do
+       expected =
+         File.join RbConfig::CONFIG['vendordir'], 'gems',
+-                  RbConfig::CONFIG['ruby_version']
++                  RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
+ 
+       assert_equal expected, Gem.vendor_dir
+     end
+-- 
+2.25.1
+

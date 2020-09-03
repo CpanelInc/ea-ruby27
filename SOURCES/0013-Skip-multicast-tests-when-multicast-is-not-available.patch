@@ -1,0 +1,30 @@
+From 58192521a3937dd2124fae0124b80aa02ec786f9 Mon Sep 17 00:00:00 2001
+From: Julian Brown <julian.brown@cpanel.net>
+Date: Thu, 3 Sep 2020 09:48:44 -0500
+Subject: [PATCH 13/13] Skip multicast tests when multicast is not available on
+ the system
+
+---
+ test/rinda/test_rinda.rb | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/test/rinda/test_rinda.rb b/test/rinda/test_rinda.rb
+index 2296653..7da9d0b 100644
+--- a/test/rinda/test_rinda.rb
++++ b/test/rinda/test_rinda.rb
+@@ -875,7 +875,11 @@ class TestRingFinger < Test::Unit::TestCase
+ 
+   def test_make_socket_ipv4_multicast_hops
+     @rf.multicast_hops = 2
+-    v4mc = @rf.make_socket('239.0.0.1')
++    begin
++      v4mc = @rf.make_socket('239.0.0.1')
++    rescue Errno::EADDRNOTAVAIL, Errno::ENETUNREACH
++      return # IPv4 address for multicast not available
++    end
+     assert_equal(2, v4mc.getsockopt(:IPPROTO_IP, :IP_MULTICAST_TTL).ipv4_multicast_ttl)
+   ensure
+     v4mc.close if v4mc
+-- 
+2.25.1
+

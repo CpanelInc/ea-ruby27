@@ -1,0 +1,83 @@
+From 2bfedda49ae7101b1996f736b775b668fcbbc644 Mon Sep 17 00:00:00 2001
+From: Julian Brown <julian.brown@cpanel.net>
+Date: Thu, 3 Sep 2020 09:09:26 -0500
+Subject: [PATCH 05/13] Prevent duplicated paths when empty version string is
+ configured.
+
+---
+ configure.ac     |  3 ++-
+ loadpath.c       | 18 +++++++++++++++---
+ tool/mkconfig.rb |  2 +-
+ 3 files changed, 18 insertions(+), 5 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 5b31c56..a8e94f3 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3740,7 +3740,8 @@ AS_CASE(["$ruby_version_dir_name"],
+ ruby_version_dir=/'${ruby_version_dir_name}'
+ 
+ if test -z "${ruby_version_dir_name}"; then
+-    AC_MSG_ERROR([No ruby version, No place for bundled libraries])
++    unset ruby_version_dir
++    AC_DEFINE(RUBY_LIB_VERSION_BLANK, 1)
+ fi
+ 
+ rubylibdir='${rubylibprefix}'${ruby_version_dir}
+diff --git a/loadpath.c b/loadpath.c
+index b8969e6..4b4fa8e 100644
+--- a/loadpath.c
++++ b/loadpath.c
+@@ -65,21 +65,33 @@ const char ruby_initial_load_paths[] =
+     RUBY_SEARCH_PATH "\0"
+ #endif
+ #ifndef NO_RUBY_SITE_LIB
++#ifdef RUBY_LIB_VERSION_BLANK
++    RUBY_SITE_LIB "\0"
++#else
+     RUBY_SITE_LIB2 "\0"
++#endif
+ #ifdef RUBY_THINARCH
+     RUBY_SITE_ARCH_LIB_FOR(RUBY_THINARCH) "\0"
+ #endif
+     RUBY_SITE_ARCH_LIB_FOR(RUBY_SITEARCH) "\0"
+-    RUBY_SITE_LIB "\0"
++#ifndef RUBY_LIB_VERSION_BLANK
++     RUBY_SITE_LIB "\0"
++#endif
+ #endif
+ 
+ #ifndef NO_RUBY_VENDOR_LIB
+-    RUBY_VENDOR_LIB2 "\0"
++#ifdef RUBY_LIB_VERSION_BLANK
++    RUBY_VENDOR_LIB "\0"
++else
++     RUBY_VENDOR_LIB2 "\0"
++#endif
+ #ifdef RUBY_THINARCH
+     RUBY_VENDOR_ARCH_LIB_FOR(RUBY_THINARCH) "\0"
+ #endif
+     RUBY_VENDOR_ARCH_LIB_FOR(RUBY_SITEARCH) "\0"
+-    RUBY_VENDOR_LIB "\0"
++#ifndef RUBY_LIB_VERSION_BLANK
++     RUBY_VENDOR_LIB "\0"
++#endif
+ #endif
+ 
+     RUBY_LIB "\0"
+diff --git a/tool/mkconfig.rb b/tool/mkconfig.rb
+index 05ecb81..6b103de 100755
+--- a/tool/mkconfig.rb
++++ b/tool/mkconfig.rb
+@@ -114,7 +114,7 @@ File.foreach "config.status" do |line|
+     val = val.gsub(/\$(?:\$|\{?(\w+)\}?)/) {$1 ? "$(#{$1})" : $&}.dump
+     case name
+     when /^prefix$/
+-      val = "(TOPDIR || DESTDIR + #{val})"
++      val = "(((TOPDIR && TOPDIR.empty?) ? nil : TOPDIR) || DESTDIR + #{val})"
+     when /^ARCH_FLAG$/
+       val = "arch_flag || #{val}" if universal
+     when /^UNIVERSAL_ARCHNAMES$/
+-- 
+2.25.1
+
