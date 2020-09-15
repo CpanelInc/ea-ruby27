@@ -164,6 +164,7 @@ Source100: load.inc
 # FROM SOURCE5
 # The RubyGems root folder.
 %global gem_dir %{_datadir}/gems
+%global gem_dir2 %{_datadir}/gems/gems/ruby-%{ruby_version}
 %global gem_archdir %{_libdir}/gems
 
 # Common gem locations and files.
@@ -196,8 +197,7 @@ gem install \\\
 # Note that this must be invoked in the spec file, preferably as
 # "%%{?rubygems_default_filter}", before any %description block.
 %global rubygems_default_filter %{expand: \
-%global __provides_exclude_from %{?__provides_exclude_from:%{__provides_exclude_from}|}^%{gem_
-xtdir_mri}/.*\\\\.so$ \
+%global __provides_exclude_from %{?__provides_exclude_from:%{__provides_exclude_from}|}^%{gem_extdir_mri}/.*\\\\.so$ \
 }
 # END SOURCE5
 
@@ -224,6 +224,7 @@ Requires: %{?scl_prefix}rubygem(openssl) >= %{openssl_version}
 %{?scl:Requires: %{scl}-runtime >= 2.7.0}
 
 BuildRequires: tree
+BuildRequires: vim-common
 
 %if 0%{rhel} > 6
 BuildRequires: autoconf
@@ -608,7 +609,7 @@ autoconf
 scl enable autotools-latest 'autoconf'
 %endif
 
-export LDFLAGS="-Wl,-rpath=/opt/cpanel/ea-openssl11/lib64"
+export LDFLAGS="-Wl,-rpath=/opt/cpanel/ea-openssl11/lib64 -Wl,-rpath=/opt/cpanel/ea-ruby27/root/usr/lib64"
 
 %configure \
         --with-rubylibprefix='%{ruby_libdir}' \
@@ -637,6 +638,11 @@ make %{?_smp_mflags} COPY="cp -p" Q=
 
 %install
 
+# for the catch all file lists
+%global ruby_usr /opt/cpanel/ea-ruby27/root/usr
+%global share_ruby %{ruby_usr}/share/ruby
+%global ruby_full ruby-%{ruby_version}
+
 rm -rf %{buildroot}
 %{?scl:scl enable %scl - << \EOF
 make install DESTDIR=%{buildroot}
@@ -646,7 +652,8 @@ mkdir -p %{buildroot}%{gem_dir}/specifications
 
 # Rename ruby/config.h to ruby/config-<arch>.h to avoid file conflicts on
 # multilib systems and install config.h wrapper
-mv %{buildroot}%{_includedir}/%{pkg_name}/config.h %{buildroot}%{_includedir}/%{pkg_name}/config-%{_arch}.h
+#mv %{buildroot}%{_includedir}/%{pkg_name}/config.h %{buildroot}%{_includedir}/%{pkg_name}/config-%{_arch}.h
+cp -ar %{buildroot}%{_includedir}/%{pkg_name}/config.h %{buildroot}%{_includedir}/%{pkg_name}/config-%{_arch}.h
 install -m644 %{SOURCE7} %{buildroot}%{_includedir}/%{pkg_name}/config.h
 
 # Rename the ruby executable. It is replaced by RubyPick.
@@ -663,10 +670,12 @@ for cert in \
   index.rubygems.org/GlobalSignRootCA.pem
 do
     if test -f "%{buildroot}%{rubygems_dir}/ssl_certs/$cert"; then
+        echo "RM:001 $cert"
         rm %{buildroot}%{rubygems_dir}/ssl_certs/$cert
     fi
 
     if test -f "$(dirname %{buildroot}%{rubygems_dir}/ssl_certs/$cert)"; then
+        echo "RM:002 $cert"
         rm -r $(dirname %{buildroot}%{rubygems_dir}/ssl_certs/$cert)
     fi
 done
@@ -687,7 +696,8 @@ mkdir -p %{buildroot}%{rubygems_dir}/rubygems/defaults
 sed 's/@SCL@/%{scl}/' %{SOURCE1} > %{buildroot}%{rubygems_dir}/rubygems/defaults/%{basename:%{SOURCE1}}
 
 # Move gems root into common directory, out of Ruby directory structure.
-mv %{buildroot}%{ruby_libdir}/gems %{buildroot}%{gem_dir}
+#mv %{buildroot}%{ruby_libdir}/gems %{buildroot}%{gem_dir}
+cp -ar %{buildroot}%{ruby_libdir}/gems %{buildroot}%{gem_dir}
 
 # Create folders for gem binary extensions.
 # TODO: These folders should go into rubygem-filesystem but how to achieve it,
@@ -700,69 +710,88 @@ mkdir -p %{buildroot}%{_exec_prefix}/lib{,64}/gems/%{pkg_name}
 # bigdecimal and io-console are not enough for scl
 
 mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
-mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
+#mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
 
-mv %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/rdoc-%{rdoc_version}.gemspec %{buildroot}%{gem_dir}/specifications
+#mv %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/rdoc-%{rdoc_version}.gemspec %{buildroot}%{gem_dir}/specifications
+cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/rdoc-%{rdoc_version}.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/rdoc-%{rdoc_version}/lib/rdoc.rb %{buildroot}%{ruby_libdir}/rdoc.rb
 ln -s %{gem_dir}/gems/rdoc-%{rdoc_version}/lib/rdoc %{buildroot}%{ruby_libdir}/rdoc
 
 mkdir -p %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_version}
-mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/bigdecimal %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
-mv .ext/x86_64-linux/bigdecimal.so %{buildroot}%{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_version}
-mv ext/bigdecimal/bigdecimal.gemspec %{buildroot}%{gem_dir}/specifications
+#mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/bigdecimal %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
+#mv .ext/x86_64-linux/bigdecimal.so %{buildroot}%{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_version}
+#mv ext/bigdecimal/bigdecimal.gemspec %{buildroot}%{gem_dir}/specifications
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/bigdecimal %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
+cp -ar .ext/x86_64-linux/bigdecimal.so %{buildroot}%{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_version}
+cp -ar ext/bigdecimal/bigdecimal.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib/bigdecimal %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/bigdecimal
 ln -s %{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_version}/bigdecimal.so %{buildroot}%{ruby_libarchdir}/bigdecimal.so
 
 mkdir -p %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/io-console-%{io_console_version}/io
-mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/io %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
-mv .ext/x86_64-linux/io/console.so %{buildroot}%{_libdir}/gems/%{pkg_name}/io-console-%{io_console_version}/io
-mv ext/io/console/io-console.gemspec %{buildroot}%{gem_dir}/specifications
+#mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/io %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
+#mv .ext/x86_64-linux/io/console.so %{buildroot}%{_libdir}/gems/%{pkg_name}/io-console-%{io_console_version}/io
+#mv ext/io/console/io-console.gemspec %{buildroot}%{gem_dir}/specifications
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/io %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
+cp -ar .ext/x86_64-linux/io/console.so %{buildroot}%{_libdir}/gems/%{pkg_name}/io-console-%{io_console_version}/io
+cp -ar ext/io/console/io-console.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/io-console-%{io_console_version}/lib/io %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/io
 mkdir -p %{buildroot}%{ruby_libarchdir}/io
 ln -s %{_libdir}/gems/%{pkg_name}/io-console-%{io_console_version}/io/console.so %{buildroot}%{ruby_libarchdir}/io/console.so
 
 mkdir -p %{buildroot}%{gem_dir}/gems/json-%{json_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/json-%{json_version}
-mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/json* %{buildroot}%{gem_dir}/gems/json-%{json_version}/lib
-mv ext/json/ %{buildroot}%{_libdir}/gems/%{pkg_name}/json-%{json_version}/
+#mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/json* %{buildroot}%{gem_dir}/gems/json-%{json_version}/lib
+#mv ext/json/ %{buildroot}%{_libdir}/gems/%{pkg_name}/json-%{json_version}/
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/json* %{buildroot}%{gem_dir}/gems/json-%{json_version}/lib
+cp -ar ext/json/ %{buildroot}%{_libdir}/gems/%{pkg_name}/json-%{json_version}/
 
-mv %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/json-%{json_version}.gemspec %{buildroot}%{gem_dir}/specifications
+#mv %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/json-%{json_version}.gemspec %{buildroot}%{gem_dir}/specifications
+cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/json-%{json_version}.gemspec %{buildroot}%{gem_dir}/specifications
 mkdir -p %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}
-mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl* %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
+#mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl* %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl* %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
 
-mv .ext/x86_64-linux/openssl.so %{buildroot}%{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}/
+#mv .ext/x86_64-linux/openssl.so %{buildroot}%{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}/
+cp -ar .ext/x86_64-linux/openssl.so %{buildroot}%{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}/
 
-mv %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/openssl-%{openssl_version}.gemspec %{buildroot}%{gem_dir}/specifications
+#mv %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/openssl-%{openssl_version}.gemspec %{buildroot}%{gem_dir}/specifications
+cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/openssl-%{openssl_version}.gemspec %{buildroot}%{gem_dir}/specifications
 
 # This used to be directory when OpenSSL was integral part of StdLib => Keep
 # it as directory and link everything in it to prevent directory => symlink
 # conversion RPM issues.
 
 mkdir -p %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl
-find %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl -maxdepth 1 -type f -exec \
-  sh -c 'ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl/`basename {}` %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl' \;
-ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl.rb %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl.rb
-ln -s %{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}/openssl.so %{buildroot}%{ruby_libarchdir}/openssl.so
+#find %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl -maxdepth 1 -type f -exec \
+#  sh -c 'ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl/`basename {}` %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl' \;
+#ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl.rb %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl.rb
+#ln -s %{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}/openssl.so %{buildroot}%{ruby_libarchdir}/openssl.so
 
 mkdir -p %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/psych-%{psych_version}
-mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/psych* %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
-mv .ext/x86_64-linux/psych.so %{buildroot}%{_libdir}/gems/%{pkg_name}/psych-%{psych_version}/
+#mv %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/psych* %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
+#mv .ext/x86_64-linux/psych.so %{buildroot}%{_libdir}/gems/%{pkg_name}/psych-%{psych_version}/
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/psych* %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
+cp -ar .ext/x86_64-linux/psych.so %{buildroot}%{_libdir}/gems/%{pkg_name}/psych-%{psych_version}/
 
-mv ext/psych/psych.gemspec %{buildroot}%{gem_dir}/specifications
-ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/psych
-ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/psych.rb
-ln -s %{_libdir}/gems/%{pkg_name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
+#mv ext/psych/psych.gemspec %{buildroot}%{gem_dir}/specifications
+
+#cp -ar ext/psych/psych.gemspec %{buildroot}%{gem_dir}/specifications
+#ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/psych
+#ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/psych.rb
+#ln -s %{_libdir}/gems/%{pkg_name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
 
 # Adjust the gemspec files so that the gems will load properly
 sed -i '/^end$/ i\
   s.extensions = ["json/ext/parser.so", "json/ext/generator.so"]' %{buildroot}%{gem_dir}/specifications/json-%{json_version}.gemspec
 
 # Move man pages into proper location
-mv %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/gems/rake-%{rake_version}/doc/rake.1 %{buildroot}%{_mandir}/man1
+#mv %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/gems/rake-%{rake_version}/doc/rake.1 %{buildroot}%{_mandir}/man1
+cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/gems/rake-%{rake_version}/doc/rake.1 %{buildroot}%{_mandir}/man1
 
 # Install a tapset and fix up the path to the library.
 mkdir -p %{buildroot}%{tapset_dir}
@@ -770,6 +799,9 @@ sed -e "s|@LIBRARY_PATH@|%{tapset_libdir}/libruby.so.%{major_minor_version}|" \
   %{SOURCE2} > %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
 # Escape '*/' in comment.
 sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
+
+cp -a %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/rake-%{rake_version}.gemspec %{buildroot}%{gem_dir}/specifications
+cp -a %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/rake-%{rake_version}.gemspec %{buildroot}%{gem_dir}/specifications
 
 # Prepare -doc subpackage file lists.
 find doc -maxdepth 1 -type f ! -name '.*' ! -name '*.ja*' > .ruby-doc.en
@@ -849,6 +881,7 @@ make check TESTS="-v $DISABLE_TESTS"
 # We do not want the Check to fail the build
 /bin/true
 EOF}
+echo "CHECK: END"
 %endif
 
 %post libs -p /sbin/ldconfig
@@ -870,53 +903,184 @@ EOF}
 %dir %{_exec_prefix}/share/doc
 
 # catch all file lists
-%{_exec_prefix}/bin/*
-%{_exec_prefix}/lib64/gems/ruby/json-%{json_version}/json/*
-
-%{_exec_prefix}/lib64/ruby/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/enc/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/io/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/json/ext/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/mathn/bignum/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/mathn/complex/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/mathn/fixnum/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/mathn/float/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/mathn/integer/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/mathn/math/fixtures/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/mathn/math/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/mathn/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/mathn/rational/*
-%{_exec_prefix}/lib64/ruby/ruby-%{ruby_version}/*
-%{_exec_prefix}/share/gems/gems/io-console-%{io_console_version}/lib/io/*
-%{_exec_prefix}/share/gems/gems/json-%{json_version}/lib/*
-%{_exec_prefix}/share/gems/gems/ruby-%{ruby_version}/gems/bundler-%{bundler_version}/*
-%{_exec_prefix}/share/gems/gems/ruby-%{ruby_version}/gems/bundler-%{bundler_version}/*
-%{_exec_prefix}/share/gems/gems/ruby-%{ruby_version}/gems/irb-%{irb_version}/exe/*
-%{_exec_prefix}/share/gems/gems/ruby-%{ruby_version}/gems/racc-%{racc_version}/bin/*
-%{_exec_prefix}/share/gems/gems/ruby-%{ruby_version}/gems/rdoc-%{rdoc_version}/exe/*
-%{_exec_prefix}/share/gems/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_version}/*
-%{_exec_prefix}/share/gems/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_version}/.*
-%{_exec_prefix}/share/gems/gems/ruby-%{ruby_version}/specifications/default/*
-%{_exec_prefix}/share/gems/gems/ruby-%{ruby_version}/specifications/*
-%{_exec_prefix}/share/gems/specifications/*
-%{_exec_prefix}/share/man/man1/*
-%{_exec_prefix}/share/man/man5/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/benchmark/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/bundler/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/did_you_mean/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/getoptlong/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/logger/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/observer/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/open3/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/ostruct/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/pstore/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/reline/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/singleton/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/timeout/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/tracer/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/csv/core_ext/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/csv/*
-%{_exec_prefix}/share/ruby/ruby-%{ruby_version}/delegate/*
+%{share_ruby}/gems/%{ruby_full}/cache/*
+%{share_ruby}/gems/%{ruby_full}/gems/bundler-*/libexec/*
+%{share_ruby}/gems/%{ruby_full}/gems/irb-*/exe/irb
+%{share_ruby}/gems/%{ruby_full}/gems/minitest-*/.*
+%{share_ruby}/gems/%{ruby_full}/gems/minitest-*/*
+%{share_ruby}/gems/%{ruby_full}/gems/minitest-*/lib/hoe/minitest.rb
+%{share_ruby}/gems/%{ruby_full}/gems/minitest-*/lib/minitest.rb
+%{share_ruby}/gems/%{ruby_full}/gems/minitest-*/lib/minitest/*
+%{share_ruby}/gems/%{ruby_full}/gems/minitest-*/test/minitest/*
+%{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/.*
+%{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/*
+%{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/bin/*
+%{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/lib/net-telnet.rb
+%{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/lib/net/telnet.rb
+%{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/lib/net/telnet/version.rb
+%{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/net-telnet.gemspec
+%{share_ruby}/gems/%{ruby_full}/gems/power_assert-*/.*
+%{share_ruby}/gems/%{ruby_full}/gems/power_assert-*/*
+%{share_ruby}/gems/%{ruby_full}/gems/power_assert-*/bin/console
+%{share_ruby}/gems/%{ruby_full}/gems/power_assert-*/bin/setup
+%{share_ruby}/gems/%{ruby_full}/gems/power_assert-*/lib/*
+%{share_ruby}/gems/%{ruby_full}/gems/racc-*/bin/*
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/.github/workflows/*
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/*
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/bin/*
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/doc/*
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/doc/example/*
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/doc/example/a.c
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/doc/example/b.c
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/doc/example/main.c
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/exe/rake
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/lib/*
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/lib/rake/*
+%{share_ruby}/gems/%{ruby_full}/gems/rake-*/rake.gemspec
+%{share_ruby}/gems/%{ruby_full}/gems/rdoc-*/exe/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/doc/text/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/lib/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/lib/test/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/lib/test/unit/ui/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/lib/test/unit/util/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/lib/test/unit/version.rb
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/sample/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/test/collector/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/test/fixtures/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/test/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/test/ui/*
+%{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/test/util/*
+%{share_ruby}/gems/%{ruby_full}/gems/xmlrpc-*/.*
+%{share_ruby}/gems/%{ruby_full}/gems/xmlrpc-*/*
+%{share_ruby}/gems/%{ruby_full}/gems/xmlrpc-*/bin/*
+%{share_ruby}/gems/%{ruby_full}/gems/xmlrpc-*/lib/*
+%{share_ruby}/gems/%{ruby_full}/specifications/default/*
+%{share_ruby}/gems/%{ruby_full}/specifications/*
+%{share_ruby}/%{ruby_full}/json/add/*
+%{share_ruby}/%{ruby_full}/json/*
+%{share_ruby}/%{ruby_full}/rdoc/*
+%{share_ruby}/%{ruby_full}/rdoc/generator/template/darkfish/*
+%{share_ruby}/%{ruby_full}/rdoc/generator/template/darkfish/css/*
+%{share_ruby}/%{ruby_full}/rdoc/generator/template/darkfish/fonts/*
+%{share_ruby}/%{ruby_full}/rdoc/generator/template/darkfish/images/*
+%{share_ruby}/%{ruby_full}/rdoc/generator/template/json_index/js/*
+%{share_ruby}/%{ruby_full}/rdoc/*
+%{share_ruby}/%{ruby_full}/rdoc/markup/*
+%{share_ruby}/%{ruby_full}/rdoc/parser/*
+%{share_ruby}/%{ruby_full}/rdoc/rd/*
+%{share_ruby}/%{ruby_full}/rdoc/ri/*
+%{ruby_usr}/bin/bundle
+%{ruby_usr}/bin/bundler
+%{ruby_usr}/bin/racc
+%{ruby_usr}/bin/racc2y
+%{ruby_usr}/bin/y2racc
+%{ruby_usr}/lib64/gems/ruby/json-*0/json/*
+%{ruby_usr}/lib64/gems/ruby/json-*/json/fbuffer/fbuffer.h
+%{ruby_usr}/lib64/gems/ruby/json-*/json/generator/*
+%{ruby_usr}/lib64/gems/ruby/json-*/json/lib/*
+%{ruby_usr}/lib64/gems/ruby/json-*/json/lib/json/add/*
+%{ruby_usr}/lib64/gems/ruby/json-*/json/lib/json/*
+%{ruby_usr}/lib64/gems/ruby/json-*/json/parser/*
+%{ruby_usr}/lib64/ruby/*
+%{ruby_usr}/lib64/ruby/%{ruby_full}/enc/*
+%{ruby_usr}/lib64/ruby/%{ruby_full}/io/console.so
+%{ruby_usr}/lib64/ruby/%{ruby_full}/json/ext/*
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/bignum/exponent_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/complex/Complex_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/fixnum/exponent_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/float/exponent_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/integer/from_prime_division_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/integer/prime_division_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/math/fixtures/classes.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/math/rsqrt_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/math/shared/rsqrt.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/math/shared/sqrt.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/math/sqrt_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/mathn_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/rational/Rational_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/mathn/rational/inspect_spec.rb
+%{ruby_usr}/lib64/ruby/%{ruby_full}/monitor.so
+%{ruby_usr}/lib64/ruby/%{ruby_full}/rbconfig/sizeof.so
+%{ruby_usr}/share/gems/gems/io-console-*/lib/io/console/size.rb
+%{ruby_usr}/share/gems/gems/json-*/lib/json.rb
+%{ruby_usr}/share/gems/gems/json-*/lib/json/add/*
+%{ruby_usr}/share/gems/gems/json-*/lib/json/*
+%{ruby_usr}/share/gems/gems/%{ruby_full}/gems/bundler-*/libexec/bundle
+%{ruby_usr}/share/gems/gems/%{ruby_full}/gems/bundler-*/libexec/bundler
+%{ruby_usr}/share/gems/gems/%{ruby_full}/gems/irb-*/exe/irb
+%{ruby_usr}/share/gems/gems/%{ruby_full}/gems/racc-*/bin/*
+%{ruby_usr}/share/gems/gems/%{ruby_full}/gems/rdoc-*/exe/*
+%{ruby_usr}/share/gems/gems/%{ruby_full}/gems/xmlrpc-*/.*
+%{ruby_usr}/share/gems/gems/%{ruby_full}/gems/xmlrpc-*/*
+%{ruby_usr}/share/gems/gems/%{ruby_full}/specifications/default/*
+%{ruby_usr}/share/gems/specifications/*
+%{ruby_usr}/share/man/man1/*
+%{ruby_usr}/share/man/man5/gemfile.5.gz
+%{ruby_usr}/share/ruby/%{ruby_full}/benchmark/version.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/cli/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/fetcher/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/installer/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/plugin/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/plugin/installer/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/source/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/source/git/git_proxy.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/source/path/installer.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/source/rubygems/remote.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/templates/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/templates/newgem/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/templates/newgem/bin/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/templates/newgem/exe/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/templates/newgem/ext/newgem/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/templates/newgem/lib/newgem.rb.tt
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/templates/newgem/lib/newgem/version.rb.tt
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/templates/newgem/spec/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/templates/newgem/test/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/ui/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/connection_pool/lib/connection_pool.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/connection_pool/lib/connection_pool/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/fileutils/lib/fileutils.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/fileutils/lib/fileutils/version.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/molinillo/lib/molinillo.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/molinillo/lib/molinillo/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/molinillo/lib/molinillo/delegates/resolution_state.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/molinillo/lib/molinillo/delegates/specification_provider.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/molinillo/lib/molinillo/dependency_graph.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/molinillo/lib/molinillo/dependency_graph/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/molinillo/lib/molinillo/modules/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/net-http-persistent/lib/net/http/persistent.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/net-http-persistent/lib/net/http/persistent/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/thor/lib/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/thor/lib/thor/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/thor/lib/thor/actions/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/thor/lib/thor/core_ext/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/thor/lib/thor/parser/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/uri/lib/*
+%{ruby_usr}/share/ruby/%{ruby_full}/bundler/vendor/uri/lib/uri/*
+%{ruby_usr}/share/ruby/%{ruby_full}/csv/core_ext/*
+%{ruby_usr}/share/ruby/%{ruby_full}/csv/*
+%{ruby_usr}/share/ruby/%{ruby_full}/delegate/version.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/did_you_mean/core_ext/name_error.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/did_you_mean/experimental.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/did_you_mean/experimental/*
+%{ruby_usr}/share/ruby/%{ruby_full}/did_you_mean/formatters/*
+%{ruby_usr}/share/ruby/%{ruby_full}/did_you_mean/formatters/*
+%{ruby_usr}/share/ruby/%{ruby_full}/did_you_mean/*
+%{ruby_usr}/share/ruby/%{ruby_full}/did_you_mean/spell_checkers/*
+%{ruby_usr}/share/ruby/%{ruby_full}/did_you_mean/spell_checkers/name_error_checkers/*
+%{ruby_usr}/share/ruby/%{ruby_full}/getoptlong/version.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/logger/*
+%{ruby_usr}/share/ruby/%{ruby_full}/observer/version.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/open3/version.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/ostruct/version.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/pstore/version.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/reline/*
+%{ruby_usr}/share/ruby/%{ruby_full}/reline/key_actor/*
+%{ruby_usr}/share/ruby/%{ruby_full}/reline/unicode/east_asian_width.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/singleton/version.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/timeout/version.rb
+%{ruby_usr}/share/ruby/%{ruby_full}/tracer/version.rb
 
 %dir %{_exec_prefix}/share/ruby/
 %dir %{gem_dir}/gems/
@@ -1092,6 +1256,8 @@ EOF}
 # Explicitly include only RubyGems directory strucure to avoid accidentally
 # packaged content.
 %dir %{gem_dir}
+%dir %{gem_dir}/gems/ruby-%{ruby_version}
+%dir %{gem_dir}/gems/ruby-%{ruby_version}/gems
 %dir %{_exec_prefix}/lib*/gems
 %dir %{_exec_prefix}/lib*/gems/ruby
 
@@ -1102,8 +1268,10 @@ EOF}
 
 %files -n %{?scl_prefix}rubygem-rake
 %{_bindir}/rake
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/rake-%{rake_version}
-%{gem_dir}/gems/ruby-%{ruby_version}/specifications/rake-%{rake_version}.gemspec
+%dir %{gem_dir2}/gems/rake-%{rake_version}
+%{gem_dir2}/gems/rake-%{rake_version}/*
+%{gem_dir2}/gems/rake-%{rake_version}/.*
+%{gem_dir2}/specifications/rake-%{rake_version}.gemspec
 %{_mandir}/man1/rake.1*
 
 %files irb
@@ -1159,7 +1327,8 @@ EOF}
 %files -n %{?scl_prefix}rubygem-openssl
 %{ruby_libdir_ver}/openssl
 %{ruby_libdir_ver}/openssl.rb
-%{ruby_libarchdir}/openssl.so
+%{ruby_libarchdir_ver}/openssl.so
+#%{ruby_libarchdir}/openssl.so
 %{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}
 %{gem_dir}/gems/openssl-%{openssl_version}
 %{gem_dir}/specifications/openssl-%{openssl_version}.gemspec
