@@ -1494,7 +1494,6 @@ EOF}
 %{ruby_libarchdir_ver}/mathn/rational.so
 %{ruby_libarchdir_ver}/nkf.so
 %{ruby_libarchdir_ver}/objspace.so
-%{ruby_libarchdir_ver}/openssl.so
 %{ruby_libarchdir_ver}/pathname.so
 %{ruby_libarchdir_ver}/pty.so
 %dir %{ruby_libarchdir_ver}/racc
@@ -2155,7 +2154,6 @@ EOF}
 %{ruby_libdir_ver}/openssl
 %{ruby_libdir_ver}/openssl.rb
 %{ruby_libarchdir_ver}/openssl.so
-#%{ruby_libarchdir}/openssl.so
 %{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}
 %{gem_dir}/gems/openssl-%{openssl_version}
 %{gem_dir}/specifications/openssl-%{openssl_version}.gemspec
