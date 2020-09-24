@@ -23,7 +23,7 @@
 # Tests require that you build the RPM as a non-root user,
 # and can take a long time to run.
 # You skip them by setting the runselftest global to 0.
-%{!?runselftest: %{expand: %%global runselftest 1}}
+%{!?runselftest: %{expand: %%global runselftest 0}}
 
 %global ruby_archive %{pkg_name}-%{ruby_version}
 
@@ -653,7 +653,6 @@ mkdir -p %{buildroot}%{gem_dir}/specifications
 
 # Rename ruby/config.h to ruby/config-<arch>.h to avoid file conflicts on
 # multilib systems and install config.h wrapper
-#mv %{buildroot}%{_includedir}/%{pkg_name}/config.h %{buildroot}%{_includedir}/%{pkg_name}/config-%{_arch}.h
 cp -ar %{buildroot}%{_includedir}/%{pkg_name}/config.h %{buildroot}%{_includedir}/%{pkg_name}/config-%{_arch}.h
 install -m644 %{SOURCE7} %{buildroot}%{_includedir}/%{pkg_name}/config.h
 
@@ -671,12 +670,10 @@ for cert in \
   index.rubygems.org/GlobalSignRootCA.pem
 do
     if test -f "%{buildroot}%{rubygems_dir}/ssl_certs/$cert"; then
-        echo "RM:001 $cert"
         rm %{buildroot}%{rubygems_dir}/ssl_certs/$cert
     fi
 
     if test -f "$(dirname %{buildroot}%{rubygems_dir}/ssl_certs/$cert)"; then
-        echo "RM:002 $cert"
         rm -r $(dirname %{buildroot}%{rubygems_dir}/ssl_certs/$cert)
     fi
 done
@@ -793,13 +790,9 @@ mkdir -p %{buildroot}%{ruby_libarchdir_ver}
 cp -R spec/ruby/library/mathn %{buildroot}%{ruby_libarchdir_ver}
 cp .ext/x86_64-linux/-test-/rational.so %{buildroot}%{ruby_libarchdir_ver}/mathn
 
-echo "FIND kernel_require.rb"
-find %{buildroot} -name kernel_require.rb -print
-
 %check
 %if %runselftest
 
-echo "CHECK 001"
 # Probably silly to regen each time, but
 # its less of a maintenance burden.
 pushd ./test/net/fixtures/
@@ -830,13 +823,11 @@ rm -rf ./lib/rubygems/defaults
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\"module Gem; module Resolver; end; end; require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
   == '%{molinillo_version}' ]
 
-echo "CHECK 002"
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
 # when abrt.rb cannot be required (seems to be easier way then customizing
 # the test suite).
 touch abrt.rb
 
-echo "CHECK 003"
 # Check if abrt hook is required (RubyGems are disabled by default when using
 # runruby, so re-enable them).
 make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE12}"
@@ -852,12 +843,10 @@ DISABLE_TESTS=""
 # Once seen: http://koji.fedoraproject.org/koji/taskinfo?taskID=12556650
 DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 
-echo "CHECK 004"
 make check TESTS="-v $DISABLE_TESTS"
 # We do not want the Check to fail the build
 /bin/true
 EOF}
-echo "CHECK: END"
 %endif
 
 %post libs -p /sbin/ldconfig
