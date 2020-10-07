@@ -707,9 +707,6 @@ mkdir -p %{buildroot}%{_exec_prefix}/lib{,64}/gems/%{pkg_name}
 # make symlinks in ruby_stdlib for unbundled Gems, so that everything works as expected
 # bigdecimal and io-console are not enough for scl
 
-echo "RDOC EXE FILE LIST"
-find . -type f -print | grep rdoc | grep exe 
-
 mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
 mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/exe
 cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
