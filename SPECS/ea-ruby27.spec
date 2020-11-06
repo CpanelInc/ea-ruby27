@@ -909,8 +909,6 @@ EOF}
 
 %postun libs -p /sbin/ldconfig
 
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/ruby-2.7.1/gems/rdoc-6.2.1/exe/rdoc/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/ruby-2.7.1/gems/rdoc-6.2.1/exe/ri
-
 %files
 %doc BSDL
 %doc COPYING
