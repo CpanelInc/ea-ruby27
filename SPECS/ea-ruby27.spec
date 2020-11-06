@@ -79,7 +79,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 1
+%define release_prefix 2
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -2733,6 +2733,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/ruby-2.7.1/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
 
 %changelog
+* Fri Nov 06 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-2
+- ZC-7887: Fix postun
+
 * Fri Aug 14 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-1
 - Initial commits
 
