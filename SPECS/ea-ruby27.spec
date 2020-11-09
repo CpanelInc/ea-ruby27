@@ -79,7 +79,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 2
+%define release_prefix 3
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -234,6 +234,11 @@ BuildRequires: autotools-latest-autoconf
 
 %if 0%{rhel} == 7
 BuildRequires: libyaml
+%endif
+
+%if 0%{rhel} >= 8
+# Believe it or not Ruby uses Python
+Requires: python36 python2
 %endif
 
 BuildRequires: gdbm-devel
@@ -905,7 +910,27 @@ make check TESTS="-v $DISABLE_TESTS"
 EOF}
 %endif
 
-%post libs -p /sbin/ldconfig
+%post libs
+
+/sbin/ldconfig
+
+%if 0%{rhel} >= 8
+echo "Checking for Python"
+
+if [ ! -f "/usr/bin/python" ]; then
+    echo "Python not found, calling alternatives"
+
+    # If noone has set /usr/bin/python, then we will.  Or some of the
+    # Ruby scripts will fail.
+
+    # Specifically the gem install process brings in python scripts
+    # externally.  Which reference /usr/bin/python.
+
+    alternatives --set python /usr/bin/python3
+fi
+
+echo "Python is setup"
+%endif
 
 %postun libs -p /sbin/ldconfig
 
@@ -2731,6 +2756,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/ruby-2.7.1/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
 
 %changelog
+* Fri Nov 09 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-3
+- ZC-7540: Force a /usr/bin/python if it does not already exist.
+
 * Fri Nov 06 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-2
 - ZC-7887: Fix postun
 
