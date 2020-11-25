@@ -79,7 +79,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 3
+%define release_prefix 4
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -223,8 +223,8 @@ Requires: %{?scl_prefix}rubygem(openssl) >= %{openssl_version}
 
 %{?scl:Requires: %{scl}-runtime >= 2.7.0}
 
-BuildRequires: tree
-BuildRequires: vim-common
+BuildRequires: ea-ruby27-libuv
+Requires: ea-ruby27-libuv
 
 %if 0%{rhel} > 6
 BuildRequires: autoconf
@@ -485,8 +485,16 @@ Requires:   ea-openssl11 >= %{ea_openssl_ver}
 Requires:   %{?scl_prefix}ruby(release)
 Requires:   %{?scl_prefix}ruby(rubygems) >= %{rubygems_version}
 Provides:   %{?scl_prefix}rubygem(openssl) = %{version}-%{release}
+
+%if 0%{rhel} < 8
 BuildRequires: ea-openssl11 >= %{ea_openssl_ver}
 BuildRequires: ea-openssl11-devel >= %{ea_openssl_ver}
+Requires: ea-openssl11
+%else
+BuildRequires: openssl
+BuildRequires: openssl-devel
+Requires: openssl
+%endif
 
 %description -n %{?scl_prefix}rubygem-openssl
 OpenSSL provides SSL, TLS and general purpose cryptography. It wraps the
@@ -614,7 +622,11 @@ autoconf
 scl enable autotools-latest 'autoconf'
 %endif
 
+%if 0%{rhel} < 8
 export LDFLAGS="-Wl,-rpath=/opt/cpanel/ea-openssl11/lib64 -Wl,-rpath=/opt/cpanel/ea-ruby27/root/usr/lib64"
+%else
+export LDFLAGS="-Wl,-rpath=/opt/cpanel/ea-ruby27/root/usr/lib64"
+%endif
 
 %configure \
         --with-rubylibprefix='%{ruby_libdir}' \
@@ -630,12 +642,20 @@ export LDFLAGS="-Wl,-rpath=/opt/cpanel/ea-openssl11/lib64 -Wl,-rpath=/opt/cpanel
         --with-vendorarchhdrdir='$(vendorhdrdir)/$(arch)' \
         --with-ruby-pc='%{pkg_name}.pc' \
         --with-compress-debug-sections=no \
+%if 0%{rhel} < 8
         --enable-rpath=/opt/cpanel/ea-openssl11/lib \
+%else
+        --enable-rpath=/opt/cpanel/ea-ruby27/root/usr/lib64 \
+%endif
         --enable-shared \
         --with-ruby-version="ruby-%{ruby_version}" \
         --enable-multiarch \
+%if 0%{rhel} < 8
         --with-prelude=./abrt_prelude.rb \
         --with-opt-dir=/opt/cpanel/ea-openssl11
+%else
+        --with-prelude=./abrt_prelude.rb
+%endif
 
 # Q= makes the build output more verbose and allows to check Fedora
 # compiler options.
@@ -2756,6 +2776,9 @@ echo "Python is setup"
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/ruby-2.7.1/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
 
 %changelog
+* Wed Nov 25 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-4
+- ZC-8005: Replace ea-openssl11 with system openssl on C8
+
 * Fri Nov 09 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-3
 - ZC-7540: Force a /usr/bin/python if it does not already exist.
 
