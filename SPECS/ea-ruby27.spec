@@ -491,6 +491,7 @@ BuildRequires: ea-openssl11 >= %{ea_openssl_ver}
 BuildRequires: ea-openssl11-devel >= %{ea_openssl_ver}
 Requires: ea-openssl11
 %else
+# In C8 we use system openssl. See DESIGN.md in ea-openssl11 git repo for details
 BuildRequires: openssl
 BuildRequires: openssl-devel
 Requires: openssl
