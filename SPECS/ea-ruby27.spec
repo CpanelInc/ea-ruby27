@@ -935,24 +935,6 @@ EOF}
 
 /sbin/ldconfig
 
-%if 0%{rhel} >= 8
-echo "Checking for Python"
-
-if [ ! -f "/usr/bin/python" ]; then
-    echo "Python not found, calling alternatives"
-
-    # If noone has set /usr/bin/python, then we will.  Or some of the
-    # Ruby scripts will fail.
-
-    # Specifically the gem install process brings in python scripts
-    # externally.  Which reference /usr/bin/python.
-
-    alternatives --set python /usr/bin/python3
-fi
-
-echo "Python is setup"
-%endif
-
 %postun libs -p /sbin/ldconfig
 
 %files
