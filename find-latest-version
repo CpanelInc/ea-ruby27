@@ -16,20 +16,18 @@ use FindBin;
 use lib "../ea-tools/lib/ea4_tool";    # assumes ea-tools is checked out next to this repo
 use ea4_tool::util ();
 
-my $version;
-my $name;
-my $url;
-my $type;
-my $hex;
-
 ea4_tool::util::find_latest_version( \&_get_required, \&_add_sum ) if !caller();
 
 ###############
 #### helpers ##
 ###############
 
+my $hex;
+
 sub _get_required {
     my ($http) = @_;
+
+    my ($version, $name, $url, $type);
 
     my $res = $http->get("https://www.ruby-lang.org/en/downloads/");
     if ( !$res->{success} ) {
