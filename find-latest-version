@@ -27,7 +27,7 @@ ea4_tool::util::find_latest_version( \&_get_required, \&_add_sum ) if !caller();
 sub _get_required {
     my ($http) = @_;
 
-    my ($version, $name, $url, $type);
+    my ($version, $name, $url);
 
     my $res = $http->get("https://www.ruby-lang.org/en/downloads/");
     if ( !$res->{success} ) {
@@ -49,7 +49,6 @@ sub _get_required {
                 $version = $1;
                 $name    = "ruby-${version}.tar.gz";
                 $url     = "https://cache.ruby-lang.org/pub/ruby/2.7/$name";
-                $type    = 'sha256';
 
                 # now lets try and find the checksum
 
