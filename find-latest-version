@@ -16,13 +16,13 @@ use FindBin;
 use lib "../ea-tools/lib/ea4_tool";    # assumes ea-tools is checked out next to this repo
 use ea4_tool::util ();
 
+my $hex;
+
 ea4_tool::util::find_latest_version( \&_get_required, \&_add_sum ) if !caller();
 
 ###############
 #### helpers ##
 ###############
-
-my $hex;
 
 sub _get_required {
     my ($http) = @_;
