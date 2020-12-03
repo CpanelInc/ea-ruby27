@@ -1,0 +1,86 @@
+#!/usr/local/cpanel/3rdparty/bin/perl
+# cpanel - find-latest-version                  Copyright(c) 2020 cPanel, L.L.C.
+#                                                           All rights Reserved.
+# copyright@cpanel.net                                         http://cpanel.net
+# This code is subject to the cPanel license. Unauthorized copying is prohibited
+
+package ea_ruby::find_latest_version;
+
+use strict;
+use warnings;
+
+use Cpanel::JSON             ();
+use HTML::TreeBuilder::XPath ();
+
+use FindBin;
+use lib "../ea-tools/lib/ea4_tool";    # assumes ea-tools is checked out next to this repo
+use ea4_tool::util ();
+
+my $hex;
+
+ea4_tool::util::find_latest_version( \&_get_required, \&_add_sum ) if !caller();
+
+###############
+#### helpers ##
+###############
+
+sub _get_required {
+    my ($http) = @_;
+
+    my ($version, $name, $url);
+
+    my $res = $http->get("https://www.ruby-lang.org/en/downloads/");
+    if ( !$res->{success} ) {
+        die "Could not GET ruby info from https://www.ruby-lang.org/en/downloads/\n";
+    }
+
+    my $dom      = HTML::TreeBuilder::XPath->new_from_content( $res->content );
+    my $node_set = $dom->findnodes('//a');
+    my @nodes    = $node_set->get_nodelist();
+
+    foreach my $node (@nodes) {
+        my $href = $node->attr('href');
+        if ( $href && index( $href, 'https://cache.ruby-lang.org/pub/ruby/2.7' ) == 0 ) {
+            my $idx = rindex( $href, '/' );
+            my $gz_tarball = substr( $href, $idx + 1 );
+
+            # ruby-2.7.1.tar.gz
+            if ( $gz_tarball =~ m/^ruby-(2\.7\.\d+)\.tar\.gz$/ ) {
+                $version = $1;
+                $name    = "ruby-${version}.tar.gz";
+                $url     = "https://cache.ruby-lang.org/pub/ruby/2.7/$name";
+
+                # now lets try and find the checksum
+
+                my $parent = $node->parent();
+
+                if ( ref($parent) ) {
+                    my @children = $parent->content_list();
+                    foreach my $child (@children) {
+                        if ( !ref($child) ) {
+                            if ( $child =~ m/sha256: ([^\s]+)/ ) {
+                                $hex = $1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return ( $version, $url, $name );
+}
+
+sub _add_sum {
+    my ( $http, $hr ) = @_;
+
+    if ($hex) {
+        $hr->{tarball}{sum}{hex}  = $hex;
+        $hr->{tarball}{sum}{type} = "sha256";
+    }
+    else {
+        die "There is no SHA for $hr->{tarball}{name} (not officially released yet?)\n";
+    }
+
+    return;
+}
