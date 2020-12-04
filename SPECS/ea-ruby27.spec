@@ -79,7 +79,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 4
+%define release_prefix 5
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -481,7 +481,6 @@ Summary:    OpenSSL provides SSL, TLS and general purpose cryptography
 Version:    %{openssl_version}
 Group:      Development/Libraries
 License:    Ruby or BSD
-Requires:   ea-openssl11 >= %{ea_openssl_ver}
 Requires:   %{?scl_prefix}ruby(release)
 Requires:   %{?scl_prefix}ruby(rubygems) >= %{rubygems_version}
 Provides:   %{?scl_prefix}rubygem(openssl) = %{version}-%{release}
@@ -2759,6 +2758,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/ruby-2.7.1/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
 
 %changelog
+* Fri Dec 04 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-5
+- ZC-8079: remove requires ea-openssl
+
 * Wed Nov 25 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-4
 - ZC-8005: Replace ea-openssl11 with system openssl on C8
 
