@@ -2601,7 +2601,7 @@ EOF}
 
 %changelog
 * Fri Dec 04 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-5
-- ZC-8079: remove requires ea-openssl
+- ZC-8079: remove requires ea-openssl for CentOS 8 (only)
 
 * Wed Nov 25 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-4
 - ZC-8005: Replace ea-openssl11 with system openssl on C8
