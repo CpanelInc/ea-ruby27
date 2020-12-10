@@ -109,8 +109,6 @@ Source6: abrt_prelude.rb
 # https://fedorahosted.org/fpc/ticket/312
 # https://bugzilla.redhat.com/show_bug.cgi?id=977941
 Source7: config.h
-# TODO: SystemTap tests skipped cause they fail on OBS
-# check by hand: PIG-2955
 Source13: test_systemtap.rb
 # To test Ruby software collection
 Source14: test_dependent_scls.rb
