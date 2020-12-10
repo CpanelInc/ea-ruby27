@@ -109,11 +109,7 @@ Source6: abrt_prelude.rb
 # https://fedorahosted.org/fpc/ticket/312
 # https://bugzilla.redhat.com/show_bug.cgi?id=977941
 Source7: config.h
-# ABRT hoook test case.
-Source12: test_abrt.rb
-# TODO: SystemTap tests skipped cause they fail on OBS
-# check by hand: PIG-2955
-# Source13: test_systemtap.rb
+Source13: test_systemtap.rb
 # To test Ruby software collection
 Source14: test_dependent_scls.rb
 
@@ -880,9 +876,6 @@ popd
 mkdir -p ./lib/rubygems/defaults
 cp %{SOURCE1} ./lib/rubygems/defaults
 
-cat -n lib/yaml.rb
-/bin/true
-
 # TODO: This test does not run, someone with Ruby knowledge will need to update these
 # tests. Remove the double percent symbol after uncommenting
 make test-all TESTS="%{SOURCE14}" || exit 1
@@ -899,29 +892,19 @@ rm -rf ./lib/rubygems/defaults
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\"module Gem; module Resolver; end; end; require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
   == '%{molinillo_version}' ]
 
-# test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
-# when abrt.rb cannot be required (seems to be easier way then customizing
-# the test suite).
-touch abrt.rb
-
-# Check if abrt hook is required (RubyGems are disabled by default when using
-# runruby, so re-enable them).
-make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE12}"
-
-# TODO: This test does not run, someone with Ruby knowledge will need to update these
-# tests.
-# Check if systemtap is supported.
 make runruby TESTRUN_SCRIPT=%{SOURCE13}
 
 DISABLE_TESTS=""
 
 # https://bugs.ruby-lang.org/issues/11480
 # Once seen: http://koji.fedoraproject.org/koji/taskinfo?taskID=12556650
-DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
+DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb -x test_https.rb -x test_rinda.rb -x clock_getres_spec.rb -x test_fiber.rb"
 
 make check TESTS="-v $DISABLE_TESTS"
-# We do not want the Check to fail the build
-/bin/true
+
+# Trying systemtab
+make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
+
 EOF}
 %endif
 
