@@ -14,7 +14,7 @@
 
 %global major_version 2
 %global minor_version 7
-%global teeny_version 1
+%global teeny_version 2
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -79,7 +79,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 5
+%define release_prefix 1
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -87,7 +87,7 @@
 
 Summary: An interpreter of object-oriented scripting language
 Name: %{?scl_prefix}ruby
-Version: 2.7.1
+Version: 2.7.2
 Release: %{release_prefix}%{?dist}.cpanel
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
@@ -2583,6 +2583,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Thu Feb 25 2021 Cory McIntire <cory@cpanel.net> - 2.7.2-1
+- EA-9609: Update ea-ruby27 from v2.7.1 to v2.7.2
+
 * Fri Dec 04 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-5
 - ZC-8079: remove requires ea-openssl for CentOS 8 (only)
 
