@@ -87,7 +87,7 @@
 
 Summary: An interpreter of object-oriented scripting language
 Name: %{?scl_prefix}ruby
-Version: %{ruby_version}
+Version: 2.7.1
 Release: %{release_prefix}%{?dist}.cpanel
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
