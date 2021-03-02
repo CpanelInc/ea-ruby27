@@ -14,7 +14,7 @@
 
 %global major_version 2
 %global minor_version 7
-%global teeny_version 1
+%global teeny_version 2
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -37,7 +37,7 @@
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
-%global irb_version %{ruby_version}
+%global irb_version 1.2.6
 
 # NOTE: These versions are determined the hard way, I wait till they fail
 # in deployment because the filename is wrong (the version is in the filename)
@@ -47,10 +47,9 @@
 %global bundler_version 2.1.4
 %global did_you_mean_version 1.4.0
 %global io_console_version 0.5.6
-%global irb_version 1.2.3
 %global json_version 2.3.0
 %global minitest_version 5.13.0
-%global net_telnet_version 0.2.0 
+%global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
 %global power_assert_version 1.1.7
 %global psych_version 3.1.0
@@ -79,7 +78,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 5
+%define release_prefix 6
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -87,7 +86,7 @@
 
 Summary: An interpreter of object-oriented scripting language
 Name: %{?scl_prefix}ruby
-Version: 2.7.1
+Version: 2.7.2
 Release: %{release_prefix}%{?dist}.cpanel
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
@@ -933,7 +932,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/bin/racc2y
 /opt/cpanel/ea-ruby27/root/usr/bin/y2racc
 /opt/cpanel/ea-ruby27/root/usr/lib64/libruby.so.2.7
-/opt/cpanel/ea-ruby27/root/usr/lib64/libruby.so.2.7.1
+/opt/cpanel/ea-ruby27/root/usr/lib64/libruby.so.%{ruby_version}
 /opt/cpanel/ea-ruby27/root/usr/lib64/ruby/%{ruby_full}/enc/cesu_8.so
 /opt/cpanel/ea-ruby27/root/usr/lib64/ruby/%{ruby_full}/enc/trans/cesu_8.so
 /opt/cpanel/ea-ruby27/root/usr/lib64/ruby/%{ruby_full}/mathn/bignum/exponent_spec.rb
@@ -985,7 +984,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/racc-%{racc_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/readline-0.0.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/readline-ext-0.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/reline-0.1.3.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/reline-0.1.5.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/rexml-3.2.3.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/rss-0.2.8.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/sdbm-1.0.0.gemspec
@@ -1033,7 +1032,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rdoc-%{rdoc_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/readline-0.0.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/readline-ext-0.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/reline-0.1.3.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/reline-0.1.5.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rexml-3.2.3.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rss-0.2.8.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/sdbm-1.0.0.gemspec
@@ -1387,7 +1386,7 @@ EOF}
 %lang(ja) %doc COPYING.ja
 %doc GPL
 %doc LEGAL
-/opt/cpanel/ea-ruby27/root/usr/include/rb_mjit_min_header-2.7.1.h
+/opt/cpanel/ea-ruby27/root/usr/include/rb_mjit_min_header-%{ruby_version}.h
 /opt/cpanel/ea-ruby27/root/usr/include/ruby/assert.h
 /opt/cpanel/ea-ruby27/root/usr/include/ruby/backward/classext.h
 /opt/cpanel/ea-ruby27/root/usr/include/ruby/backward/cxxanyargs.hpp
@@ -2583,13 +2582,17 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Thu Feb 25 2021 Cory McIntire <cory@cpanel.net> - 2.7.2-6
+- EA-9609: Update ea-ruby27 from v2.7.1 to v2.7.2
+  Adjusted release to -6 due to OBS build issues of the gems
+
 * Fri Dec 04 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-5
 - ZC-8079: remove requires ea-openssl for CentOS 8 (only)
 
 * Wed Nov 25 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-4
 - ZC-8005: Replace ea-openssl11 with system openssl on C8
 
-* Fri Nov 09 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-3
+* Mon Nov 09 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-3
 - ZC-7540: Force a /usr/bin/python if it does not already exist.
 
 * Fri Nov 06 2020 Julian Brown <julian.brown@cpanel.net> - 2.7.1-2

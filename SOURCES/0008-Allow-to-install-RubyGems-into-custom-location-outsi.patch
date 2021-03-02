@@ -1,8 +1,8 @@
-From e01057867b46cf9c1c3d5e71b685fcfb711ab6c4 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Brown <julian.brown@cpanel.net>
 Date: Thu, 3 Sep 2020 12:01:54 -0500
-Subject: [PATCH] Allow to install RubyGems into custom location, outside of
- Ruby tree.
+Subject: [PATCH 08/13] Allow to install RubyGems into custom location, outside
+ of Ruby tree.
 
 ---
  template/verconf.h.tmpl | 3 +++
@@ -50,6 +50,3 @@ index 4d23e80..9343af2 100755
  end
  
  install?(:local, :comm, :hdr, :'comm-hdr') do
--- 
-2.25.1
-

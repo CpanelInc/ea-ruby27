@@ -1,4 +1,4 @@
-From 27dd3667e4004fb2ae437c38bb356f87e536b43e Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Brown <julian.brown@cpanel.net>
 Date: Thu, 3 Sep 2020 08:43:58 -0500
 Subject: [PATCH 02/13] Add ruby_version_dir_name support for RDoc.
@@ -34,6 +34,3 @@ index 0603906..4d23e80 100755
      prepare "rdoc", ridatadir
      install_recursive($rdocdir, ridatadir, :no_install => rdoc_noinst, :mode => $data_mode)
    end
--- 
-2.25.1
-
