@@ -1,4 +1,4 @@
-From 9411c70b17ed2a0f0a8c91147099ed5e0a8e1823 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Brown <julian.brown@cpanel.net>
 Date: Thu, 3 Sep 2020 09:22:19 -0500
 Subject: [PATCH 07/13] Always use i386.
@@ -8,10 +8,10 @@ Subject: [PATCH 07/13] Always use i386.
  1 file changed, 2 insertions(+)
 
 diff --git a/configure.ac b/configure.ac
-index 9d90390..14d93dc 100644
+index 719e2d1..2925d62 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3804,6 +3804,8 @@ AC_SUBST(vendorarchdir)dnl
+@@ -3807,6 +3807,8 @@ AC_SUBST(vendorarchdir)dnl
  AC_SUBST(CONFIGURE, "`echo $0 | sed 's|.*/||'`")dnl
  AC_SUBST(configure_args, "`echo "${ac_configure_args}" | sed 's/\\$/$$/g'`")dnl
  
@@ -20,6 +20,3 @@ index 9d90390..14d93dc 100644
  AS_IF([test "${universal_binary-no}" = yes ], [
      arch="universal-${target_os}"
      AS_IF([test "${rb_cv_architecture_available}" = yes], [
--- 
-2.25.1
-

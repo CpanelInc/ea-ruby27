@@ -1,4 +1,4 @@
-From 59b428111e78e30ba8d9b578cf2c4e8a91f57214 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Brown <julian.brown@cpanel.net>
 Date: Wed, 2 Sep 2020 12:14:08 -0500
 Subject: [PATCH 01/13] Use ruby_version_dir_name for versioned directories.
@@ -17,10 +17,10 @@ string.
  2 files changed, 35 insertions(+), 30 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index f1ed36b..46784f8 100644
+index 6766df2..2701efe 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3691,9 +3691,6 @@ AS_CASE(["$target_os"],
+@@ -3694,9 +3694,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index f1ed36b..46784f8 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -3716,56 +3713,62 @@ AC_ARG_WITH(ridir,
+@@ -3719,56 +3716,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index f1ed36b..46784f8 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -3782,6 +3785,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -3785,6 +3788,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -140,6 +140,3 @@ index 7ce4461..c4d46f6 100644
  RUBY_API_VERSION=@RUBY_API_VERSION@
  RUBY_PROGRAM_VERSION=@RUBY_PROGRAM_VERSION@
  RUBY_BASE_NAME=@RUBY_BASE_NAME@
--- 
-2.25.1
-

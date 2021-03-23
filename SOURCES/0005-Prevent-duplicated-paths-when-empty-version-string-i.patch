@@ -1,4 +1,4 @@
-From 2bfedda49ae7101b1996f736b775b668fcbbc644 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Brown <julian.brown@cpanel.net>
 Date: Thu, 3 Sep 2020 09:09:26 -0500
 Subject: [PATCH 05/13] Prevent duplicated paths when empty version string is
@@ -11,10 +11,10 @@ Subject: [PATCH 05/13] Prevent duplicated paths when empty version string is
  3 files changed, 18 insertions(+), 5 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 5b31c56..a8e94f3 100644
+index f8e9e75..e8f6929 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3740,7 +3740,8 @@ AS_CASE(["$ruby_version_dir_name"],
+@@ -3743,7 +3743,8 @@ AS_CASE(["$ruby_version_dir_name"],
  ruby_version_dir=/'${ruby_version_dir_name}'
  
  if test -z "${ruby_version_dir_name}"; then
@@ -78,6 +78,3 @@ index 05ecb81..6b103de 100755
      when /^ARCH_FLAG$/
        val = "arch_flag || #{val}" if universal
      when /^UNIVERSAL_ARCHNAMES$/
--- 
-2.25.1
-

@@ -1,4 +1,4 @@
-From c62eab23bc983d4a8b1061acdc5ea03282429184 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Brown <julian.brown@cpanel.net>
 Date: Thu, 3 Sep 2020 09:41:45 -0500
 Subject: [PATCH 11/13] Generate preludes using miniruby.
@@ -20,6 +20,3 @@ index 824d6f6..a597ced 100644
  		$(srcdir)/template/prelude.c.tmpl $(BUILTIN_RB_SRCS)
  
  $(GOLF_PRELUDE_C): $(COMPILE_PRELUDE) {$(srcdir)}golf_prelude.rb
--- 
-2.25.1
-

@@ -1,4 +1,4 @@
-From 277d5acba492b97f6de8d13d6f11bac89072e6a7 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Julian Brown <julian.brown@cpanel.net>
 Date: Thu, 3 Sep 2020 09:32:51 -0500
 Subject: [PATCH 09/13] Verbose mkmf.
@@ -20,6 +20,3 @@ index eabccd4..cf30689 100644
  Q1 = $(V:1=)
  Q = $(Q1:0=@)
  ECHO1 = $(V:1=@ #{CONFIG['NULLCMD']})
--- 
-2.25.1
-
