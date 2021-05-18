@@ -78,7 +78,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 6
+%define release_prefix 7
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -2582,6 +2582,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Tue May 11 2021 Travis Holloway <t.holloway@cpanel.net> - 2.7.2-7
+- EA-9759: Ensure ruby-devel is properly required
+
 * Thu Feb 25 2021 Cory McIntire <cory@cpanel.net> - 2.7.2-6
 - EA-9609: Update ea-ruby27 from v2.7.1 to v2.7.2
   Adjusted release to -6 due to OBS build issues of the gems
