@@ -12,13 +12,9 @@
 %global scl_prefix %{scl}-
 %scl_package ruby
 
-%global major_version 2
-%global minor_version 7
-%global teeny_version 2
-%global major_minor_version %{major_version}.%{minor_version}
-
-%global ruby_version %{major_minor_version}.%{teeny_version}
-%global ruby_release %{ruby_version}
+# this will never change through the life of this specfile
+# new specfiles with newer versions of ruby will need to update this
+%global major_minor_version 2.7
 
 # Tests require that you build the RPM as a non-root user,
 # and can take a long time to run.
@@ -56,7 +52,9 @@
 %global racc_version 1.4.16
 %global rake_version 13.0.1
 %global rdoc_version 6.2.1
+%global rexml_version 3.2.3.1
 %global test_unit_version 3.3.4
+%global webrick_version 1.6.1
 %global xmlrpc_version 0.3.0
 
 # Might not be needed in the future, if we are lucky enough.
@@ -78,7 +76,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 8
+%define release_prefix 1
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -86,7 +84,7 @@
 
 Summary: An interpreter of object-oriented scripting language
 Name: %{?scl_prefix}ruby
-Version: 2.7.2
+Version: 2.7.3
 Release: %{release_prefix}%{?dist}.cpanel
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
@@ -115,6 +113,10 @@ Source14: test_dependent_scls.rb
 # %%load function should be supported in RPM 4.12+.
 # http://lists.rpm.org/pipermail/rpm-maint/2014-February/003659.html
 Source100: load.inc
+
+%global ruby_version %{version}
+%global ruby_release %{ruby_version}
+
 %include %{SOURCE100}
 
 # NOTE: the macro load syntax is not working with our macro files on C8. 
@@ -985,7 +987,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/readline-0.0.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/readline-ext-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/reline-0.1.5.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/rexml-3.2.3.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/rexml-%{rexml_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/rss-0.2.8.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/sdbm-1.0.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/singleton-0.1.0.gemspec
@@ -994,7 +996,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/timeout-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/tracer-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/uri-0.10.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/webrick-1.6.0.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/webrick-%{webrick_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/yaml-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/zlib-1.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/bundler-%{bundler_version}/libexec/bundle
@@ -1033,7 +1035,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/readline-0.0.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/readline-ext-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/reline-0.1.5.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rexml-3.2.3.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rexml-%{rexml_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rss-0.2.8.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/sdbm-1.0.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/singleton-0.1.0.gemspec
@@ -1042,7 +1044,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/timeout-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/tracer-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/uri-0.10.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/webrick-1.6.0.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/webrick-%{webrick_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/yaml-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/zlib-1.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/abbrev.rb
@@ -1376,6 +1378,16 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/weakref.rb
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/webrick.rb
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/yaml.rb
+
+# new files from 2.7.3
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/bundle
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/bundler
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/irb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/racc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/racc2y
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/ri
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/y2racc
 
 %dir %{_exec_prefix}/share/ruby/
 %dir %{gem_dir}/gems/
@@ -2582,6 +2594,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Mon Jun 14 2021 Julian Brown <julian.brown@cpanel.net> - 2.7.3-1
+- EA-9864: Update ea-ruby27 from v2.7.2 to v2.7.3
+
 * Tue Jun 08 2021 Travis Holloway <t.holloway@cpanel.net> - 2.7.2-8
 - EA-9801: Reduce time needed to install this package
 
