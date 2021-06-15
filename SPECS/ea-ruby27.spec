@@ -21,12 +21,6 @@
 # You skip them by setting the runselftest global to 0.
 %{!?runselftest: %{expand: %%global runselftest 0}}
 
-%global ruby_archive %{pkg_name}-%{ruby_version}
-
-# The RubyGems library has to stay out of Ruby directory tree, since the
-# RubyGems should be share by all Ruby implementations.
-%global rubygems_dir %{_datadir}/ruby/ruby-%{ruby_version}/rubygems
-
 # Bundled libraries versions
 %global rubygems_version 2.6.14.4
 %global molinillo_version 0.5.7
@@ -116,6 +110,11 @@ Source100: load.inc
 
 %global ruby_version %{version}
 %global ruby_release %{ruby_version}
+%global ruby_archive %{pkg_name}-%{ruby_version}
+
+# The RubyGems library has to stay out of Ruby directory tree, since the
+# RubyGems should be share by all Ruby implementations.
+%global rubygems_dir %{_datadir}/ruby/ruby-%{ruby_version}/rubygems
 
 %include %{SOURCE100}
 
