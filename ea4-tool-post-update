@@ -19,15 +19,20 @@ exit( run() ? 0 : 1 ) if !caller;
 
 sub run {
     my $repo_path = ea4_tool::util::get_path_of_repo('ea-ruby27');
-    my $spec      = ea4_tool::util::specfile($CWD);
-    my $version   = ea4_tool::util::spec_get_version($spec) || die "Could not determine version from SPEC\n";
 
-    my ( $major_ver, $minor_ver ) = split /\./, $version;
-    my $tarball_ver = $version;
-    my $tarball     = "SOURCES/ruby-${tarball_ver}.tar.gz";
+    local $CWD = $repo_path;
+
+    my $spec = ea4_tool::util::specfile($CWD);
+
+    my ( $old_version, $new_version ) = @ARGV;
+    my $take_no_action = 0;
+    if ( !$new_version ) {    # if called from command line directly
+        $take_no_action = 1;
+        $new_version    = ea4_tool::util::spec_get_version($spec) || die "Could not determine version from SPEC\n";
+    }
+
+    my $tarball = "SOURCES/ruby-${new_version}.tar.gz";
     my %gemspec_files;
-
-    $CWD = $repo_path;
 
     {
         my $work_dir = File::Temp->newdir();
@@ -36,75 +41,75 @@ sub run {
         system("tar xf $repo_path/$tarball");
 
         $gemspec_files{rubygems} = {
-            file       => "ruby-${tarball_ver}/lib/rubygems.rb",
+            file       => "ruby-${new_version}/lib/rubygems.rb",
             search_for => "VERSION",
         };
         $gemspec_files{bigdecimal} = {
-            file       => "ruby-${tarball_ver}/ext/bigdecimal/bigdecimal.gemspec",
+            file       => "ruby-${new_version}/ext/bigdecimal/bigdecimal.gemspec",
             search_for => "bigdecimal_version",
         };
         $gemspec_files{bundler} = {
-            file       => "ruby-${tarball_ver}/lib/bundler/version.rb",
+            file       => "ruby-${new_version}/lib/bundler/version.rb",
             search_for => 'VERSION',
         };
         $gemspec_files{did_you_mean} = {
-            file       => "ruby-${tarball_ver}/lib/did_you_mean/version.rb",
+            file       => "ruby-${new_version}/lib/did_you_mean/version.rb",
             search_for => 'VERSION',
         };
         $gemspec_files{io_console} = {
-            file       => "ruby-${tarball_ver}/ext/io/console/io-console.gemspec",
+            file       => "ruby-${new_version}/ext/io/console/io-console.gemspec",
             search_for => '_VERSION',
         };
         $gemspec_files{irb} = {
-            file       => "ruby-${tarball_ver}/lib/irb/version.rb",
+            file       => "ruby-${new_version}/lib/irb/version.rb",
             search_for => 'VERSION',
         };
         $gemspec_files{json} = {
-            file => "ruby-${tarball_ver}/ext/json/json.gemspec",
+            file => "ruby-${new_version}/ext/json/json.gemspec",
         };
         $gemspec_files{openssl} = {
-            file => "ruby-${tarball_ver}/ext/openssl/openssl.gemspec",
+            file => "ruby-${new_version}/ext/openssl/openssl.gemspec",
         };
         $gemspec_files{psych} = {
-            file       => "ruby-${tarball_ver}/ext/psych/lib/psych/versions.rb",
+            file       => "ruby-${new_version}/ext/psych/lib/psych/versions.rb",
             search_for => 'VERSION',
         };
-        $gemspec_files{racc} = { file => "ruby-${tarball_ver}/lib/racc/racc.gemspec" };
+        $gemspec_files{racc} = { file => "ruby-${new_version}/lib/racc/racc.gemspec" };
         $gemspec_files{rdoc} = {
-            file       => "ruby-${tarball_ver}/lib/rdoc/version.rb",
+            file       => "ruby-${new_version}/lib/rdoc/version.rb",
             search_for => 'VERSION',
         };
         $gemspec_files{rexml} = {
-            file       => "ruby-${tarball_ver}/lib/rexml/rexml.rb",
+            file       => "ruby-${new_version}/lib/rexml/rexml.rb",
             search_for => 'VERSION',
         };
         $gemspec_files{webrick} = {
-            file       => "ruby-${tarball_ver}/lib/webrick/version.rb",
+            file       => "ruby-${new_version}/lib/webrick/version.rb",
             search_for => 'VERSION',
         };
         $gemspec_files{molinillo} = {
-            file       => "ruby-${tarball_ver}/lib/bundler/vendor/molinillo/lib/molinillo/gem_metadata.rb",
+            file       => "ruby-${new_version}/lib/bundler/vendor/molinillo/lib/molinillo/gem_metadata.rb",
             search_for => 'VERSION',
         };
 
         # these next are different
         $gemspec_files{minitest} = {
-            file => _get_filename_from_glob( "ruby-${tarball_ver}", "gems/minitest-*/minitest.gemspec" ),
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/minitest-*/minitest.gemspec" ),
         };
         $gemspec_files{net_telnet} = {
-            file => _get_filename_from_glob( "ruby-${tarball_ver}", "gems/net-telnet-*/net-telnet.gemspec" ),
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/net-telnet-*/net-telnet.gemspec" ),
         };
         $gemspec_files{power_assert} = {
-            file => _get_filename_from_glob( "ruby-${tarball_ver}", "gems/power_assert-*/power_assert.gemspec" ),
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/power_assert-*/power_assert.gemspec" ),
         };
         $gemspec_files{rake} = {
-            file => _get_filename_from_glob( "ruby-${tarball_ver}", "gems/rake-*/rake.gemspec" ),
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/rake-*/rake.gemspec" ),
         };
         $gemspec_files{test_unit} = {
-            file => _get_filename_from_glob( "ruby-${tarball_ver}", "gems/test-unit-*/test-unit.gemspec" ),
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/test-unit-*/test-unit.gemspec" ),
         };
         $gemspec_files{xmlrpc} = {
-            file => _get_filename_from_glob( "ruby-${tarball_ver}", "gems/xmlrpc-*/xmlrpc.gemspec" ),
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/xmlrpc-*/xmlrpc.gemspec" ),
         };
 
         foreach my $gemspec ( sort keys %gemspec_files ) {
@@ -148,15 +153,20 @@ sub run {
         return 1;
     }
 
-    path($spec)->spew(@lines);
+    if ( !$take_no_action ) {
+        path($spec)->spew(@lines);
 
-    print "Committing SPEC file change …\n";
-    my $git    = ea4_tool::util::git($CWD);
-    my $branch = $git->current_branch();
+        print "Committing SPEC file change …\n";
+        my $git    = ea4_tool::util::git($CWD);
+        my $branch = $git->current_branch();
 
-    $git->run( add    => $spec );
-    $git->run( commit => "-m", "$branch: Updated one or more gemspec versions" );
-    ea4_tool::util::push_to_upstream_or_origin( $git, "$branch" );
+        $git->run( add    => $spec );
+        $git->run( commit => "-m", "$branch: Updated one or more gemspec versions" );
+        ea4_tool::util::push_to_upstream_or_origin( $git, "$branch" );
+    }
+    else {
+        print "Actions are necessary!\n";
+    }
 
     print "Done!\n";
 

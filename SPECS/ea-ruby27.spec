@@ -25,10 +25,6 @@
 %global rubygems_base_version 3.1.6
 %global molinillo_base_version 0.6.6
 
-# NOTE: These values cannot be determined until the system is fully built.
-# At the end of the install block, there is code to verify if these values
-# are correct or not.  If they are not the spec file will fail to build.
-
 %global bigdecimal_base_version 2.0.0
 %global bundler_base_version 2.1.4
 %global did_you_mean_base_version 1.4.0
