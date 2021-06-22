@@ -22,8 +22,8 @@
 %{!?runselftest: %{expand: %%global runselftest 0}}
 
 # Bundled libraries versions
-%global rubygems_base_version 2.6.14.4
-%global molinillo_version 0.5.7
+%global rubygems_base_version 3.1.6
+%global molinillo_base_version 0.6.6
 
 # NOTE: These values cannot be determined until the system is fully built.
 # At the end of the install block, there is code to verify if these values
@@ -115,29 +115,27 @@ Source100: load.inc
 # Refactored versioning to include ruby version so that it updates
 # nicely.
 
-# Further put the "99_" to make sure it upgrades from existing rpms
-# so this will be am easy upgrade.
+%global bigdecimal_version %{bigdecimal_base_version}.%{ruby_version}
+%global bundler_version %{bundler_base_version}.%{ruby_version}
+%global did_you_mean_version %{did_you_mean_base_version}.%{ruby_version}
+%global io_console_version %{io_console_base_version}.%{ruby_version}
+%global irb_version %{irb_base_version}.%{ruby_version}
+%global json_version %{json_base_version}.%{ruby_version}
+%global minitest_version %{minitest_base_version}.%{ruby_version}
+%global net_telnet_version %{net_telnet_base_version}.%{ruby_version}
+%global openssl_version %{openssl_base_version}.%{ruby_version}
+%global power_assert_version %{power_assert_base_version}.%{ruby_version}
+%global psych_version %{psych_base_version}.%{ruby_version}
+%global racc_version %{racc_base_version}.%{ruby_version}
+%global rake_version %{rake_base_version}.%{ruby_version}
+%global rdoc_version %{rdoc_base_version}.%{ruby_version}
+%global rexml_version %{rexml_base_version}.%{ruby_version}
+%global test_unit_version %{test_unit_base_version}.%{ruby_version}
+%global webrick_version %{webrick_base_version}.%{ruby_version}
+%global xmlrpc_version %{xmlrpc_base_version}.%{ruby_version}
+%global molinillo_version %{molinillo_base_version}.%{ruby_version}
 
-%global bigdecimal_version 99_%{ruby_version}_%{bigdecimal_base_version}
-%global bundler_version 99_%{ruby_version}_%{bundler_base_version}
-%global did_you_mean_version 99_%{ruby_version}_%{did_you_mean_base_version}
-%global io_console_version 99_%{ruby_version}_%{io_console_base_version}
-%global irb_version 99_%{ruby_version}_%{irb_base_version}
-%global json_version 99_%{ruby_version}_%{json_base_version}
-%global minitest_version 99_%{ruby_version}_%{minitest_base_version}
-%global net_telnet_version 99_%{ruby_version}_%{net_telnet_base_version}
-%global openssl_version 99_%{ruby_version}_%{openssl_base_version}
-%global power_assert_version 99_%{ruby_version}_%{power_assert_base_version}
-%global psych_version 99_%{ruby_version}_%{psych_base_version}
-%global racc_version 99_%{ruby_version}_%{racc_base_version}
-%global rake_version 99_%{ruby_version}_%{rake_base_version}
-%global rdoc_version 99_%{ruby_version}_%{rdoc_base_version}
-%global rexml_version 99_%{ruby_version}_%{rexml_base_version}
-%global test_unit_version 99_%{ruby_version}_%{test_unit_base_version}
-%global webrick_version 99_%{ruby_version}_%{webrick_base_version}
-%global xmlrpc_version 99_%{ruby_version}_%{xmlrpc_base_version}
-%global rubygems_version 99_%{ruby_version}_%{rubygems_base_version}
-
+%global rubygems_version %{rubygems_base_version}.%{ruby_version}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
 # RubyGems should be share by all Ruby implementations.
@@ -889,204 +887,6 @@ cp -ar gems/xmlrpc-%{xmlrpc_base_version}/* %{buildroot}/%{gemsxmlrpc}
 cp -a  gems/xmlrpc-%{xmlrpc_base_version}/xmlrpc.gemspec %{buildroot}/%{gemsbase}/specifications
 cp -a  gems/xmlrpc-%{xmlrpc_base_version}/xmlrpc.gemspec %{buildroot}/%{gemsbase}/specifications/xmlrpc-%{xmlrpc_base_version}.gemspec
 
-# NOTE: this section verifies if the version numbers that we hard coded these
-# gems to are correct.  If they are not the spec file will fail.
-
-# 2 of the gemspec files do things differently.  So I wrote special code to
-# deal with them.  bigdecimal and io_console.
-
-cat << EOF > get_bigdecimal_version.pl
-
-use strict;
-use warnings;
-
-my \$line = \$ARGV[0];
-if (\$line =~ m/bigdecimal_version = .([\d\.]+)./) {
-    print "\$1";
-}
-EOF
-
-cat << EOF > get_io_console_version.pl
-
-use strict;
-use warnings;
-
-my \$line = \$ARGV[0];
-if (\$line =~ m/_VERSION = .([\d\.]+)./) {
-    print "\$1";
-}
-EOF
-
-version_line=`cat ext/bigdecimal/bigdecimal.gemspec | grep 'bigdecimal_version ='`
-bigdecimal_spec_version=`perl get_bigdecimal_version.pl "$version_line"`
-
-version_line=`cat ext/io/console/io-console.gemspec | grep '_VERSION ='`
-io_console_spec_version=`perl get_io_console_version.pl "$version_line"`
-
-# The rest of the gemspecs are easily parsed so this function will parse it
-
-export DIR1="%{buildroot}/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/ruby-%{ruby_version}/specifications/default"
-export DIR2="%{buildroot}/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications"
-
-function get_gemspec_version () {
-    package=$1
-    gemspec_file=`ls -1 $DIR1/${package}*.gemspec $DIR2/${package}*.gemspec 2> /dev/null | head -n 1`
-    version=`grep 's\.version = ' $gemspec_file | perl -n -e 'if (m/s\.version = "([^"]+)"/) { print $1; };'`
-    echo $version
-}
-
-bundler_spec_version=`get_gemspec_version "bundler"`
-did_you_mean_spec_version=`get_gemspec_version "did_you_mean"`
-irb_spec_version=`get_gemspec_version "irb"`
-json_spec_version=`get_gemspec_version "json"`
-minitest_spec_version=`get_gemspec_version "minitest"`
-net_telnet_spec_version=`get_gemspec_version "net-telnet"`
-openssl_spec_version=`get_gemspec_version "openssl"`
-power_assert_spec_version=`get_gemspec_version "power_assert"`
-psych_spec_version=`get_gemspec_version "psych"`
-racc_spec_version=`get_gemspec_version "racc"`
-rake_spec_version=`get_gemspec_version "rake"`
-rdoc_spec_version=`get_gemspec_version "rdoc"`
-rexml_spec_version=`get_gemspec_version "rexml"`
-test_unit_spec_version=`get_gemspec_version "test-unit"`
-webrick_spec_version=`get_gemspec_version "webrick"`
-xmlrpc_spec_version=`get_gemspec_version "xmlrpc"`
-
-# Now report out all the versions so if more than one changes the specfile
-# can updated all of them that changed in one edit phase.
-
-echo "VERSION REPORT"
-echo "bigdecimal" $bigdecimal_spec_version %{bigdecimal_base_version}
-echo "bundler" $bundler_spec_version %{bundler_base_version}
-echo "did_you_mean" $did_you_mean_spec_version %{did_you_mean_base_version}
-echo "io_console" $io_console_spec_version %{io_console_base_version}
-echo "irb" $irb_spec_version %{irb_base_version}
-echo "json" $json_spec_version %{json_base_version}
-echo "minitest" $minitest_spec_version %{minitest_base_version}
-echo "net_telnet" $net_telnet_spec_version %{net_telnet_base_version}
-echo "openssl" $openssl_spec_version %{openssl_base_version}
-echo "power_assert" $power_assert_spec_version %{power_assert_base_version}
-echo "psych" $psych_spec_version %{psych_base_version}
-echo "racc" $racc_spec_version %{racc_base_version}
-echo "rake" $rake_spec_version %{rake_base_version}
-echo "rdoc" $rdoc_spec_version %{rdoc_base_version}
-echo "rexml" $rexml_spec_version %{rexml_base_version}
-echo "test_unit" $test_unit_spec_version %{test_unit_base_version}
-echo "webrick" $webrick_spec_version %{webrick_base_version}
-echo "xmlrpc" $xmlrpc_spec_version %{xmlrpc_base_version}
-
-# Now fail the specfile if any of them changed
-
-if [ "$bigdecimal_spec_version" != "%{bigdecimal_base_version}" ]
-then
-    echo "bigdecimal version has changed"
-    exit 1
-fi
-
-if [ "$bundler_spec_version" != "%{bundler_base_version}" ]
-then
-    echo "bundler version has changed"
-    exit 1
-fi
-
-if [ "$did_you_mean_spec_version" != "%{did_you_mean_base_version}" ]
-then
-    echo "did_you_mean version has changed"
-    exit 1
-fi
-
-if [ "$io_console_spec_version" != "%{io_console_base_version}" ]
-then
-    echo "io_console version has changed"
-    exit 1
-fi
-
-if [ "$irb_spec_version" != "%{irb_base_version}" ]
-then
-    echo "irb version has changed"
-    exit 1
-fi
-
-if [ "$json_spec_version" != "%{json_base_version}" ]
-then
-    echo "json version has changed"
-    exit 1
-fi
-
-if [ "$minitest_spec_version" != "%{minitest_base_version}" ]
-then
-    echo "minitest version has changed"
-    exit 1
-fi
-
-if [ "$net_telnet_spec_version" != "%{net_telnet_base_version}" ]
-then
-    echo "net_telnet version has changed"
-    exit 1
-fi
-
-if [ "$openssl_spec_version" != "%{openssl_base_version}" ]
-then
-    echo "openssl version has changed"
-    exit 1
-fi
-
-if [ "$power_assert_spec_version" != "%{power_assert_base_version}" ]
-then
-    echo "power_assert version has changed"
-    exit 1
-fi
-
-if [ "$psych_spec_version" != "%{psych_base_version}" ]
-then
-    echo "psych version has changed"
-    exit 1
-fi
-
-if [ "$racc_spec_version" != "%{racc_base_version}" ]
-then
-    echo "racc version has changed"
-    exit 1
-fi
-
-if [ "$rake_spec_version" != "%{rake_base_version}" ]
-then
-    echo "rake version has changed"
-    exit 1
-fi
-
-if [ "$rdoc_spec_version" != "%{rdoc_base_version}" ]
-then
-    echo "rdoc version has changed"
-    exit 1
-fi
-
-if [ "$rexml_spec_version" != "%{rexml_base_version}" ]
-then
-    echo "rexml version has changed"
-    exit 1
-fi
-
-if [ "$test_unit_spec_version" != "%{test_unit_base_version}" ]
-then
-    echo "test_unit version has changed"
-    exit 1
-fi
-
-if [ "$webrick_spec_version" != "%{webrick_base_version}" ]
-then
-    echo "webrick version has changed"
-    exit 1
-fi
-
-if [ "$xmlrpc_spec_version" != "%{xmlrpc_base_version}" ]
-then
-    echo "xmlrpc version has changed"
-    exit 1
-fi
-
-# END of the gemspec version verification
-
 %check
 %if %runselftest
 
@@ -1115,7 +915,7 @@ rm -rf ./lib/rubygems/defaults
 [ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_base_version}' ]
 # Check Molinillo version correctness.
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\"module Gem; module Resolver; end; end; require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
-  == '%{molinillo_version}' ]
+  == '%{molinillo_base_version}' ]
 
 make runruby TESTRUN_SCRIPT=%{SOURCE13}
 
