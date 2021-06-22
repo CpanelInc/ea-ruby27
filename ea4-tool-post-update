@@ -15,16 +15,17 @@ use File::chdir;
 use File::Glob;
 use Path::Tiny;
 
-exit( run() ? 0 : 1 ) if !caller;
+exit( run(@ARGV) ? 0 : 1 ) if !caller;
 
 sub run {
+    my ( $old_version, $new_version ) = @_;
+
     my $repo_path = ea4_tool::util::get_path_of_repo('ea-ruby27');
 
     local $CWD = $repo_path;
 
     my $spec = ea4_tool::util::specfile($CWD);
 
-    my ( $old_version, $new_version ) = @ARGV;
     my $take_no_action = 0;
     if ( !$new_version ) {    # if called from command line directly
         $take_no_action = 1;
