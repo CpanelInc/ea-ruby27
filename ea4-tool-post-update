@@ -1,0 +1,209 @@
+#!/usr/local/cpanel/3rdparty/bin/perl
+# cpanel - ea4-tool-post-update                 Copyright(c) 2021 cPanel, L.L.C.
+#                                                           All rights Reserved.
+# copyright@cpanel.net                                         http://cpanel.net
+# This code is subject to the cPanel license. Unauthorized copying is prohibited
+
+package ea_ruby27::ea4_tool_post_update;
+
+use strict;
+use warnings;
+
+use lib "../ea-tools/lib/ea4_tool";    # assumes ea-tools is checked out next to this repo
+use ea4_tool::util ();
+use File::chdir;
+use File::Glob;
+use Path::Tiny;
+
+exit( run(@ARGV) ? 0 : 1 ) if !caller;
+
+sub run {
+    my ( $old_version, $new_version ) = @_;
+
+    my $repo_path = ea4_tool::util::get_path_of_repo('ea-ruby27');
+
+    local $CWD = $repo_path;
+
+    my $spec = ea4_tool::util::specfile($CWD);
+
+    my $take_no_action = 0;
+    if ( !$new_version ) {    # if called from command line directly
+        $take_no_action = 1;
+        $new_version    = ea4_tool::util::spec_get_version($spec) || die "Could not determine version from SPEC\n";
+    }
+
+    my $tarball = "SOURCES/ruby-${new_version}.tar.gz";
+    my %gemspec_files;
+
+    {
+        my $work_dir = File::Temp->newdir();
+        local $CWD = $work_dir;
+
+        system("tar xf $repo_path/$tarball");
+
+        $gemspec_files{rubygems} = {
+            file       => "ruby-${new_version}/lib/rubygems.rb",
+            search_for => "VERSION",
+        };
+        $gemspec_files{bigdecimal} = {
+            file       => "ruby-${new_version}/ext/bigdecimal/bigdecimal.gemspec",
+            search_for => "bigdecimal_version",
+        };
+        $gemspec_files{bundler} = {
+            file       => "ruby-${new_version}/lib/bundler/version.rb",
+            search_for => 'VERSION',
+        };
+        $gemspec_files{did_you_mean} = {
+            file       => "ruby-${new_version}/lib/did_you_mean/version.rb",
+            search_for => 'VERSION',
+        };
+        $gemspec_files{io_console} = {
+            file       => "ruby-${new_version}/ext/io/console/io-console.gemspec",
+            search_for => '_VERSION',
+        };
+        $gemspec_files{irb} = {
+            file       => "ruby-${new_version}/lib/irb/version.rb",
+            search_for => 'VERSION',
+        };
+        $gemspec_files{json} = {
+            file => "ruby-${new_version}/ext/json/json.gemspec",
+        };
+        $gemspec_files{openssl} = {
+            file => "ruby-${new_version}/ext/openssl/openssl.gemspec",
+        };
+        $gemspec_files{psych} = {
+            file       => "ruby-${new_version}/ext/psych/lib/psych/versions.rb",
+            search_for => 'VERSION',
+        };
+        $gemspec_files{racc} = { file => "ruby-${new_version}/lib/racc/racc.gemspec" };
+        $gemspec_files{rdoc} = {
+            file       => "ruby-${new_version}/lib/rdoc/version.rb",
+            search_for => 'VERSION',
+        };
+        $gemspec_files{rexml} = {
+            file       => "ruby-${new_version}/lib/rexml/rexml.rb",
+            search_for => 'VERSION',
+        };
+        $gemspec_files{webrick} = {
+            file       => "ruby-${new_version}/lib/webrick/version.rb",
+            search_for => 'VERSION',
+        };
+        $gemspec_files{molinillo} = {
+            file       => "ruby-${new_version}/lib/bundler/vendor/molinillo/lib/molinillo/gem_metadata.rb",
+            search_for => 'VERSION',
+        };
+
+        # these next are different
+        $gemspec_files{minitest} = {
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/minitest-*/minitest.gemspec" ),
+        };
+        $gemspec_files{net_telnet} = {
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/net-telnet-*/net-telnet.gemspec" ),
+        };
+        $gemspec_files{power_assert} = {
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/power_assert-*/power_assert.gemspec" ),
+        };
+        $gemspec_files{rake} = {
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/rake-*/rake.gemspec" ),
+        };
+        $gemspec_files{test_unit} = {
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/test-unit-*/test-unit.gemspec" ),
+        };
+        $gemspec_files{xmlrpc} = {
+            file => _get_filename_from_glob( "ruby-${new_version}", "gems/xmlrpc-*/xmlrpc.gemspec" ),
+        };
+
+        foreach my $gemspec ( sort keys %gemspec_files ) {
+            my $file       = $gemspec_files{$gemspec}->{file};
+            my $exists     = "EXISTS";
+            my $search_for = 's.version';
+            $search_for = $gemspec_files{$gemspec}->{search_for} if exists $gemspec_files{$gemspec}->{search_for};
+
+            my $version = _get_version( $file, $search_for );
+            $gemspec_files{$gemspec}->{version} = $version;
+
+            $exists = "NO EXIST" if ( !-e $file );
+
+            printf( "%-15.15s %-8.8s %-10.10s %-s\n", $gemspec, $exists, $gemspec_files{$gemspec}->{version}, $file );
+        }
+    }
+
+    my $fixed = 0;
+    my @lines = path($spec)->lines;
+    foreach my $line (@lines) {
+        if ( $line =~ m/^%global ([a-z_]+)_base_version/ ) {
+            my $key = $1;
+            next if ( !exists $gemspec_files{$key} );
+            my $version   = $gemspec_files{$key}->{version};
+            my $test_line = "%global ${key}_base_version $version\n";
+            if ( $test_line ne $line ) {
+                print "Changing $key to $version\n";
+                $line  = $test_line;
+                $fixed = 1;
+            }
+            $gemspec_files{$key}->{found} = 1;
+        }
+    }
+
+    foreach my $key ( sort keys %gemspec_files ) {
+        die "Could not find $key base_version" if !exists $gemspec_files{$key}->{found};
+    }
+
+    if ( !$fixed ) {
+        print "No changes were necessary!\n";
+        return 1;
+    }
+
+    if ( !$take_no_action ) {
+        path($spec)->spew(@lines);
+
+        print "Committing SPEC file change …\n";
+        my $git    = ea4_tool::util::git($CWD);
+        my $branch = $git->current_branch();
+
+        $git->run( add    => $spec );
+        $git->run( commit => "-m", "$branch: Updated one or more gemspec versions" );
+        ea4_tool::util::push_to_upstream_or_origin( $git, "$branch" );
+    }
+    else {
+        print "Actions are necessary!\n";
+    }
+
+    print "Done!\n";
+
+    return 1;
+}
+
+sub _get_filename_from_glob {
+    my ( $dir, $glob ) = @_;
+
+    my @files = File::Glob::bsd_glob("$dir/$glob");
+    die "Cannot find $glob" if @files < 1;
+    return $files[0];
+}
+
+sub _get_version {
+    my ( $filename, $search_for ) = @_;
+
+    my @lines = Path::Tiny::path($filename)->lines();
+    my $version;
+
+    foreach my $line (@lines) {
+        if ( $line =~ m/\Q$search_for\E\s*=\s*.([\d\.]+)./ ) {
+            $version = $1;
+            last;
+        }
+    }
+
+    if ( !$version ) {
+        print "File Search Failed $filename ($search_for)\n";
+        foreach my $line (@lines) {
+            print $line;
+        }
+        die "Could not find version in $filename";
+    }
+
+    return $version;
+}
+
+1;

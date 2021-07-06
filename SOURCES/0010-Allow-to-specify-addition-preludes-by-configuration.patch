@@ -23,10 +23,10 @@ index fd14ab6..824d6f6 100644
  PRELUDES      = {$(srcdir)}miniprelude.c
  GOLFPRELUDES  = {$(srcdir)}golf_prelude.c
 diff --git a/configure.ac b/configure.ac
-index 2925d62..2ebac0a 100644
+index c2f1818..a657573 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3883,6 +3883,13 @@ AC_SUBST(rubyarchhdrdir)dnl
+@@ -3893,6 +3893,13 @@ AC_SUBST(rubyarchhdrdir)dnl
  AC_SUBST(sitearchhdrdir)dnl
  AC_SUBST(vendorarchhdrdir)dnl
  

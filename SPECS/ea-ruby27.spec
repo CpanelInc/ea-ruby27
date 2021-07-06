@@ -12,52 +12,37 @@
 %global scl_prefix %{scl}-
 %scl_package ruby
 
-%global major_version 2
-%global minor_version 7
-%global teeny_version 2
-%global major_minor_version %{major_version}.%{minor_version}
-
-%global ruby_version %{major_minor_version}.%{teeny_version}
-%global ruby_release %{ruby_version}
+# this will never change through the life of this specfile
+# new specfiles with newer versions of ruby will need to update this
+%global major_minor_version 2.7
 
 # Tests require that you build the RPM as a non-root user,
 # and can take a long time to run.
 # You skip them by setting the runselftest global to 0.
 %{!?runselftest: %{expand: %%global runselftest 0}}
 
-%global ruby_archive %{pkg_name}-%{ruby_version}
-
-# The RubyGems library has to stay out of Ruby directory tree, since the
-# RubyGems should be share by all Ruby implementations.
-%global rubygems_dir %{_datadir}/ruby/ruby-%{ruby_version}/rubygems
-
 # Bundled libraries versions
-%global rubygems_version 2.6.14.4
-%global molinillo_version 0.5.7
+%global rubygems_base_version 3.1.6
+%global molinillo_base_version 0.6.6
 
-# TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
-# http://redmine.ruby-lang.org/issues/5313
-%global irb_version 1.2.6
-
-# NOTE: These versions are determined the hard way, I wait till they fail
-# in deployment because the filename is wrong (the version is in the filename)
-# then I corrected these versions.
-
-%global bigdecimal_version 2.0.0
-%global bundler_version 2.1.4
-%global did_you_mean_version 1.4.0
-%global io_console_version 0.5.6
-%global json_version 2.3.0
-%global minitest_version 5.13.0
-%global net_telnet_version 0.2.0
-%global openssl_version 2.1.2
-%global power_assert_version 1.1.7
-%global psych_version 3.1.0
-%global racc_version 1.4.16
-%global rake_version 13.0.1
-%global rdoc_version 6.2.1
-%global test_unit_version 3.3.4
-%global xmlrpc_version 0.3.0
+%global bigdecimal_base_version 2.0.0
+%global bundler_base_version 2.1.4
+%global did_you_mean_base_version 1.4.0
+%global io_console_base_version 0.5.6
+%global irb_base_version 1.2.6
+%global json_base_version 2.3.0
+%global minitest_base_version 5.13.0
+%global net_telnet_base_version 0.2.0
+%global openssl_base_version 2.1.2
+%global power_assert_base_version 1.1.7
+%global psych_base_version 3.1.0
+%global racc_base_version 1.4.16
+%global rake_base_version 13.0.1
+%global rdoc_base_version 6.2.1
+%global rexml_base_version 3.2.3.1
+%global test_unit_base_version 3.3.4
+%global webrick_base_version 1.6.1
+%global xmlrpc_base_version 0.3.0
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -78,7 +63,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 8
+%define release_prefix 1
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -86,7 +71,7 @@
 
 Summary: An interpreter of object-oriented scripting language
 Name: %{?scl_prefix}ruby
-Version: 2.7.2
+Version: 2.7.3
 Release: %{release_prefix}%{?dist}.cpanel
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
@@ -115,6 +100,43 @@ Source14: test_dependent_scls.rb
 # %%load function should be supported in RPM 4.12+.
 # http://lists.rpm.org/pipermail/rpm-maint/2014-February/003659.html
 Source100: load.inc
+
+%global ruby_version %{version}
+%global ruby_release %{ruby_version}
+%global ruby_archive %{pkg_name}-%{ruby_version}
+
+# TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
+# http://redmine.ruby-lang.org/issues/5313
+#
+# Refactored versioning to include ruby version so that it updates
+# nicely.
+
+%global bigdecimal_version %{bigdecimal_base_version}.%{ruby_version}
+%global bundler_version %{bundler_base_version}.%{ruby_version}
+%global did_you_mean_version %{did_you_mean_base_version}.%{ruby_version}
+%global io_console_version %{io_console_base_version}.%{ruby_version}
+%global irb_version %{irb_base_version}.%{ruby_version}
+%global json_version %{json_base_version}.%{ruby_version}
+%global minitest_version %{minitest_base_version}.%{ruby_version}
+%global net_telnet_version %{net_telnet_base_version}.%{ruby_version}
+%global openssl_version %{openssl_base_version}.%{ruby_version}
+%global power_assert_version %{power_assert_base_version}.%{ruby_version}
+%global psych_version %{psych_base_version}.%{ruby_version}
+%global racc_version %{racc_base_version}.%{ruby_version}
+%global rake_version %{rake_base_version}.%{ruby_version}
+%global rdoc_version %{rdoc_base_version}.%{ruby_version}
+%global rexml_version %{rexml_base_version}.%{ruby_version}
+%global test_unit_version %{test_unit_base_version}.%{ruby_version}
+%global webrick_version %{webrick_base_version}.%{ruby_version}
+%global xmlrpc_version %{xmlrpc_base_version}.%{ruby_version}
+%global molinillo_version %{molinillo_base_version}.%{ruby_version}
+
+%global rubygems_version %{rubygems_base_version}.%{ruby_version}
+
+# The RubyGems library has to stay out of Ruby directory tree, since the
+# RubyGems should be share by all Ruby implementations.
+%global rubygems_dir %{_datadir}/ruby/ruby-%{ruby_version}/rubygems
+
 %include %{SOURCE100}
 
 # NOTE: the macro load syntax is not working with our macro files on C8. 
@@ -727,61 +749,61 @@ mkdir -p %{buildroot}%{_exec_prefix}/lib{,64}/gems/%{pkg_name}
 # make symlinks in ruby_stdlib for unbundled Gems, so that everything works as expected
 # bigdecimal and io-console are not enough for scl
 
-mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
-mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/exe
-cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
-cp -ar libexec/rdoc %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/exe
+mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_base_version}/lib
+mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_base_version}/exe
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_base_version}/lib
+cp -ar libexec/rdoc %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_base_version}/exe
 
-cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/rdoc-%{rdoc_version}.gemspec %{buildroot}%{gem_dir}/specifications
-ln -s %{gem_dir}/gems/rdoc-%{rdoc_version}/lib/rdoc.rb %{buildroot}%{ruby_libdir}/rdoc.rb
-ln -s %{gem_dir}/gems/rdoc-%{rdoc_version}/lib/rdoc %{buildroot}%{ruby_libdir}/rdoc
+cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/rdoc-%{rdoc_base_version}.gemspec %{buildroot}%{gem_dir}/specifications
+ln -s %{gem_dir}/gems/rdoc-%{rdoc_base_version}/lib/rdoc.rb %{buildroot}%{ruby_libdir}/rdoc.rb
+ln -s %{gem_dir}/gems/rdoc-%{rdoc_base_version}/lib/rdoc %{buildroot}%{ruby_libdir}/rdoc
 
-mkdir -p %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
-mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_version}
-cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/bigdecimal %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
-cp -ar .ext/x86_64-linux/bigdecimal.so %{buildroot}%{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_version}
+mkdir -p %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_base_version}/lib
+mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_base_version}
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/bigdecimal %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_base_version}/lib
+cp -ar .ext/x86_64-linux/bigdecimal.so %{buildroot}%{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_base_version}
 cp -ar ext/bigdecimal/bigdecimal.gemspec %{buildroot}%{gem_dir}/specifications
-ln -s %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib/bigdecimal %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/bigdecimal
-ln -s %{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_version}/bigdecimal.so %{buildroot}%{ruby_libarchdir}/bigdecimal.so
+ln -s %{gem_dir}/gems/bigdecimal-%{bigdecimal_base_version}/lib/bigdecimal %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/bigdecimal
+ln -s %{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_base_version}/bigdecimal.so %{buildroot}%{ruby_libarchdir}/bigdecimal.so
 
-mkdir -p %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
-mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/io-console-%{io_console_version}/io
-cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/io %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
-cp -ar .ext/x86_64-linux/io/console.so %{buildroot}%{_libdir}/gems/%{pkg_name}/io-console-%{io_console_version}/io
+mkdir -p %{buildroot}%{gem_dir}/gems/io-console-%{io_console_base_version}/lib
+mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/io-console-%{io_console_base_version}/io
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/io %{buildroot}%{gem_dir}/gems/io-console-%{io_console_base_version}/lib
+cp -ar .ext/x86_64-linux/io/console.so %{buildroot}%{_libdir}/gems/%{pkg_name}/io-console-%{io_console_base_version}/io
 cp -ar ext/io/console/io-console.gemspec %{buildroot}%{gem_dir}/specifications
-ln -s %{gem_dir}/gems/io-console-%{io_console_version}/lib/io %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/io
+ln -s %{gem_dir}/gems/io-console-%{io_console_base_version}/lib/io %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/io
 mkdir -p %{buildroot}%{ruby_libarchdir}/io
-ln -s %{_libdir}/gems/%{pkg_name}/io-console-%{io_console_version}/io/console.so %{buildroot}%{ruby_libarchdir}/io/console.so
+ln -s %{_libdir}/gems/%{pkg_name}/io-console-%{io_console_base_version}/io/console.so %{buildroot}%{ruby_libarchdir}/io/console.so
 
-mkdir -p %{buildroot}%{gem_dir}/gems/json-%{json_version}/lib
-mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/json-%{json_version}
-cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/json* %{buildroot}%{gem_dir}/gems/json-%{json_version}/lib
-cp -ar ext/json/ %{buildroot}%{_libdir}/gems/%{pkg_name}/json-%{json_version}/
+mkdir -p %{buildroot}%{gem_dir}/gems/json-%{json_base_version}/lib
+mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/json-%{json_base_version}
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/json* %{buildroot}%{gem_dir}/gems/json-%{json_base_version}/lib
+cp -ar ext/json/ %{buildroot}%{_libdir}/gems/%{pkg_name}/json-%{json_base_version}/
 
-cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/json-%{json_version}.gemspec %{buildroot}%{gem_dir}/specifications
-mkdir -p %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
-mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}
-cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl* %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
+cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/json-%{json_base_version}.gemspec %{buildroot}%{gem_dir}/specifications
+mkdir -p %{buildroot}%{gem_dir}/gems/openssl-%{openssl_base_version}/lib
+mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/openssl-%{openssl_base_version}
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl* %{buildroot}%{gem_dir}/gems/openssl-%{openssl_base_version}/lib
 
-cp -ar .ext/x86_64-linux/openssl.so %{buildroot}%{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}/
-cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/openssl-%{openssl_version}.gemspec %{buildroot}%{gem_dir}/specifications
+cp -ar .ext/x86_64-linux/openssl.so %{buildroot}%{_libdir}/gems/%{pkg_name}/openssl-%{openssl_base_version}/
+cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/openssl-%{openssl_base_version}.gemspec %{buildroot}%{gem_dir}/specifications
 
 # This used to be directory when OpenSSL was integral part of StdLib => Keep
 # it as directory and link everything in it to prevent directory => symlink
 # conversion RPM issues.
 
 mkdir -p %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/openssl
-mkdir -p %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
-mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/psych-%{psych_version}
-cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/psych* %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
-cp -ar .ext/x86_64-linux/psych.so %{buildroot}%{_libdir}/gems/%{pkg_name}/psych-%{psych_version}/
+mkdir -p %{buildroot}%{gem_dir}/gems/psych-%{psych_base_version}/lib
+mkdir -p %{buildroot}%{_libdir}/gems/%{pkg_name}/psych-%{psych_base_version}
+cp -ar %{buildroot}%{ruby_libdir}/ruby-%{ruby_version}/psych* %{buildroot}%{gem_dir}/gems/psych-%{psych_base_version}/lib
+cp -ar .ext/x86_64-linux/psych.so %{buildroot}%{_libdir}/gems/%{pkg_name}/psych-%{psych_base_version}/
 
 # Adjust the gemspec files so that the gems will load properly
 sed -i '/^end$/ i\
-  s.extensions = ["json/ext/parser.so", "json/ext/generator.so"]' %{buildroot}%{gem_dir}/specifications/json-%{json_version}.gemspec
+  s.extensions = ["json/ext/parser.so", "json/ext/generator.so"]' %{buildroot}%{gem_dir}/specifications/json-%{json_base_version}.gemspec
 
 # Move man pages into proper location
-cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/gems/rake-%{rake_version}/doc/rake.1 %{buildroot}%{_mandir}/man1
+cp -ar %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/gems/rake-%{rake_base_version}/doc/rake.1 %{buildroot}%{_mandir}/man1
 
 # Install a tapset and fix up the path to the library.
 mkdir -p %{buildroot}%{tapset_dir}
@@ -790,10 +812,10 @@ sed -e "s|@LIBRARY_PATH@|%{tapset_libdir}/libruby.so.%{major_minor_version}|" \
 # Escape '*/' in comment.
 sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
 
-mkdir -p %{buildroot}/%{share_gems}/gems/rake-%{rake_version}/exe
-cp -a %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/rake-%{rake_version}.gemspec %{buildroot}%{gem_dir}/specifications
-cp -a %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/rake-%{rake_version}.gemspec %{buildroot}%{gem_dir}/specifications
-cp -ar gems/rake-%{rake_version}/* %{buildroot}/%{share_gems}/gems/rake-%{rake_version}
+mkdir -p %{buildroot}/%{share_gems}/gems/rake-%{rake_base_version}/exe
+cp -a %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/rake-%{rake_base_version}.gemspec %{buildroot}%{gem_dir}/specifications
+cp -a %{buildroot}%{gem_dir}/gems/ruby-%{ruby_version}/specifications/rake-%{rake_base_version}.gemspec %{buildroot}%{gem_dir}/specifications
+cp -ar gems/rake-%{rake_base_version}/* %{buildroot}/%{share_gems}/gems/rake-%{rake_base_version}
 
 # Prepare -doc subpackage file lists.
 find doc -maxdepth 1 -type f ! -name '.*' ! -name '*.ja*' > .ruby-doc.en
@@ -818,48 +840,48 @@ cp .ext/x86_64-linux/-test-/rational.so %{buildroot}%{ruby_libarchdir_ver}/mathn
 %global gemsbase opt/cpanel/ea-ruby27/root/usr/share/gems
 %global gemsdir  %{gemsbase}/gems
 
-%global gemsminitest  %{gemsdir}/minitest-%{minitest_version}
-%global gemsnettelnet %{gemsdir}/net-telnet-%{net_telnet_version}
-%global gemspowerassert %{gemsdir}/power_assert-%{power_assert_version}
-%global gemstestunit %{gemsdir}/test-unit-%{test_unit_version}
-%global gemsxmlrpc %{gemsdir}/xmlrpc-%{xmlrpc_version}
+%global gemsminitest  %{gemsdir}/minitest-%{minitest_base_version}
+%global gemsnettelnet %{gemsdir}/net-telnet-%{net_telnet_base_version}
+%global gemspowerassert %{gemsdir}/power_assert-%{power_assert_base_version}
+%global gemstestunit %{gemsdir}/test-unit-%{test_unit_base_version}
+%global gemsxmlrpc %{gemsdir}/xmlrpc-%{xmlrpc_base_version}
 
 mkdir -p %{buildroot}/%{gemsbase}
 
 mkdir -p %{buildroot}/%{gemsminitest}
-mkdir -p %{buildroot}/%{rubybase}/minitest-%{minitest_version}
+mkdir -p %{buildroot}/%{rubybase}/minitest-%{minitest_base_version}
 
-cp -ar gems/minitest-%{minitest_version}/* %{buildroot}/%{gemsminitest}
-cp -a  gems/minitest-%{minitest_version}/minitest.gemspec %{buildroot}/%{gemsbase}/specifications
-cp -a  gems/minitest-%{minitest_version}/minitest.gemspec %{buildroot}/%{gemsbase}/specifications/minitest-%{minitest_version}.gemspec
+cp -ar gems/minitest-%{minitest_base_version}/* %{buildroot}/%{gemsminitest}
+cp -a  gems/minitest-%{minitest_base_version}/minitest.gemspec %{buildroot}/%{gemsbase}/specifications
+cp -a  gems/minitest-%{minitest_base_version}/minitest.gemspec %{buildroot}/%{gemsbase}/specifications/minitest-%{minitest_base_version}.gemspec
 
 mkdir -p %{buildroot}/%{gemsnettelnet}
-mkdir -p %{buildroot}/%{rubybase}/net-telnet-%{net_telnet_version}
+mkdir -p %{buildroot}/%{rubybase}/net-telnet-%{net_telnet_base_version}
 
-cp -ar gems/net-telnet-%{net_telnet_version}/* %{buildroot}/%{gemsnettelnet}
-cp -a  gems/net-telnet-%{net_telnet_version}/net-telnet.gemspec %{buildroot}/%{gemsbase}/specifications
-cp -a  gems/net-telnet-%{net_telnet_version}/net-telnet.gemspec %{buildroot}/%{gemsbase}/specifications/net-telnet-%{net_telnet_version}.gemspec
+cp -ar gems/net-telnet-%{net_telnet_base_version}/* %{buildroot}/%{gemsnettelnet}
+cp -a  gems/net-telnet-%{net_telnet_base_version}/net-telnet.gemspec %{buildroot}/%{gemsbase}/specifications
+cp -a  gems/net-telnet-%{net_telnet_base_version}/net-telnet.gemspec %{buildroot}/%{gemsbase}/specifications/net-telnet-%{net_telnet_base_version}.gemspec
 
 mkdir -p %{buildroot}/%{gemspowerassert}
-mkdir -p %{buildroot}/%{rubybase}/power_assert-%{power_assert_version}
+mkdir -p %{buildroot}/%{rubybase}/power_assert-%{power_assert_base_version}
 
-cp -ar gems/power_assert-%{power_assert_version}/* %{buildroot}/%{gemspowerassert}
-cp -a  gems/power_assert-%{power_assert_version}/power_assert.gemspec %{buildroot}/%{gemsbase}/specifications
-cp -a  gems/power_assert-%{power_assert_version}/power_assert.gemspec %{buildroot}/%{gemsbase}/specifications/power_assert-%{power_assert_version}.gemspec
+cp -ar gems/power_assert-%{power_assert_base_version}/* %{buildroot}/%{gemspowerassert}
+cp -a  gems/power_assert-%{power_assert_base_version}/power_assert.gemspec %{buildroot}/%{gemsbase}/specifications
+cp -a  gems/power_assert-%{power_assert_base_version}/power_assert.gemspec %{buildroot}/%{gemsbase}/specifications/power_assert-%{power_assert_base_version}.gemspec
 
 mkdir -p %{buildroot}/%{gemstestunit}
-mkdir -p %{buildroot}/%{rubybase}/test-unit-%{test_unit_version}
+mkdir -p %{buildroot}/%{rubybase}/test-unit-%{test_unit_base_version}
 
-cp -ar gems/test-unit-%{test_unit_version}/* %{buildroot}/%{gemstestunit}
-cp -a  gems/test-unit-%{test_unit_version}/test-unit.gemspec %{buildroot}/%{gemsbase}/specifications
-cp -a  gems/test-unit-%{test_unit_version}/test-unit.gemspec %{buildroot}/%{gemsbase}/specifications/test-unit-%{test_unit_version}.gemspec
+cp -ar gems/test-unit-%{test_unit_base_version}/* %{buildroot}/%{gemstestunit}
+cp -a  gems/test-unit-%{test_unit_base_version}/test-unit.gemspec %{buildroot}/%{gemsbase}/specifications
+cp -a  gems/test-unit-%{test_unit_base_version}/test-unit.gemspec %{buildroot}/%{gemsbase}/specifications/test-unit-%{test_unit_base_version}.gemspec
 
 mkdir -p %{buildroot}/%{gemsxmlrpc}
-mkdir -p %{buildroot}/%{rubybase}/xmlrpc-%{xmlrpc_version}
+mkdir -p %{buildroot}/%{rubybase}/xmlrpc-%{xmlrpc_base_version}
 
-cp -ar gems/xmlrpc-%{xmlrpc_version}/* %{buildroot}/%{gemsxmlrpc}
-cp -a  gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec %{buildroot}/%{gemsbase}/specifications
-cp -a  gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec %{buildroot}/%{gemsbase}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
+cp -ar gems/xmlrpc-%{xmlrpc_base_version}/* %{buildroot}/%{gemsxmlrpc}
+cp -a  gems/xmlrpc-%{xmlrpc_base_version}/xmlrpc.gemspec %{buildroot}/%{gemsbase}/specifications
+cp -a  gems/xmlrpc-%{xmlrpc_base_version}/xmlrpc.gemspec %{buildroot}/%{gemsbase}/specifications/xmlrpc-%{xmlrpc_base_version}.gemspec
 
 %check
 %if %runselftest
@@ -886,10 +908,10 @@ rm -rf ./lib/rubygems/defaults
   #grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*Yes.*\d*.*\d*.*libruby.so.%{ruby_version}"
 
 # Check RubyGems version correctness.
-[ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_version}' ]
+[ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_base_version}' ]
 # Check Molinillo version correctness.
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\"module Gem; module Resolver; end; end; require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
-  == '%{molinillo_version}' ]
+  == '%{molinillo_base_version}' ]
 
 make runruby TESTRUN_SCRIPT=%{SOURCE13}
 
@@ -951,13 +973,13 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/lib64/ruby/%{ruby_full}/mathn/rational/Rational_spec.rb
 /opt/cpanel/ea-ruby27/root/usr/lib64/ruby/%{ruby_full}/monitor.so
 /opt/cpanel/ea-ruby27/root/usr/lib64/ruby/%{ruby_full}/rbconfig/sizeof.so
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/bundler-%{bundler_version}/libexec/bundle
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/bundler-%{bundler_version}/libexec/bundler
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/racc-%{racc_version}/bin/racc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/racc-%{racc_version}/bin/racc2y
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/racc-%{racc_version}/bin/y2racc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/bundler-%{bundler_base_version}/libexec/bundle
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/bundler-%{bundler_base_version}/libexec/bundler
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/racc-%{racc_base_version}/bin/racc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/racc-%{racc_base_version}/bin/racc2y
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/racc-%{racc_base_version}/bin/y2racc
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/benchmark-0.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/bundler-%{bundler_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/bundler-%{bundler_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/cgi-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/csv-3.1.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/date-3.0.0.gemspec
@@ -972,20 +994,20 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/getoptlong-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/ipaddr-1.2.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/logger-1.4.2.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/matrix-%{net_telnet_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/matrix-%{net_telnet_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/mutex_m-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/net-pop-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/net-smtp-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/observer-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/open3-0.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/ostruct-%{net_telnet_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/ostruct-%{net_telnet_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/prime-0.1.1.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/pstore-0.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/racc-%{racc_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/racc-%{racc_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/readline-0.0.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/readline-ext-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/reline-0.1.5.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/rexml-3.2.3.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/rexml-%{rexml_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/rss-0.2.8.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/sdbm-1.0.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/singleton-0.1.0.gemspec
@@ -994,16 +1016,16 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/timeout-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/tracer-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/uri-0.10.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/webrick-1.6.0.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/webrick-%{webrick_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/yaml-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/zlib-1.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/bundler-%{bundler_version}/libexec/bundle
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/bundler-%{bundler_version}/libexec/bundler
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/racc-%{racc_version}/bin/racc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/racc-%{racc_version}/bin/racc2y
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/racc-%{racc_version}/bin/y2racc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/bundler-%{bundler_base_version}/libexec/bundle
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/bundler-%{bundler_base_version}/libexec/bundler
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/racc-%{racc_base_version}/bin/racc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/racc-%{racc_base_version}/bin/racc2y
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/racc-%{racc_base_version}/bin/y2racc
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/benchmark-0.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/bundler-%{bundler_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/bundler-%{bundler_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/cgi-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/csv-3.1.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/date-3.0.0.gemspec
@@ -1018,22 +1040,22 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/getoptlong-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/ipaddr-1.2.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/logger-1.4.2.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/matrix-%{net_telnet_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/matrix-%{net_telnet_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/mutex_m-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/net-pop-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/net-smtp-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/observer-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/open3-0.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/ostruct-%{net_telnet_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/ostruct-%{net_telnet_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/prime-0.1.1.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/pstore-0.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/psych-%{psych_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/racc-%{racc_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rdoc-%{rdoc_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/psych-%{psych_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/racc-%{racc_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rdoc-%{rdoc_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/readline-0.0.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/readline-ext-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/reline-0.1.5.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rexml-3.2.3.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rexml-%{rexml_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/rss-0.2.8.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/sdbm-1.0.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/singleton-0.1.0.gemspec
@@ -1042,7 +1064,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/timeout-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/tracer-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/uri-0.10.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/webrick-1.6.0.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/webrick-%{webrick_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/yaml-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/zlib-1.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/abbrev.rb
@@ -1377,6 +1399,16 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/webrick.rb
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/yaml.rb
 
+# new files from 2.7.3
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/bundle
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/bundler
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/irb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/racc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/racc2y
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/ri
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/y2racc
+
 %dir %{_exec_prefix}/share/ruby/
 %dir %{gem_dir}/gems/
 
@@ -1588,227 +1620,227 @@ EOF}
 
 %files -n %{?scl_prefix}rubygem-rake
 %{_bindir}/rake
-%dir %{gem_dir2}/gems/rake-%{rake_version}
-%{gem_dir2}/specifications/rake-%{rake_version}.gemspec
-%{share_ruby}/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/example/a.c
-%{share_ruby}/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/example/b.c
-%{share_ruby}/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/example/main.c
-%{share_ruby}/gems/%{ruby_full}/gems/rake-%{rake_version}/exe/rake
-%{share_ruby}/gems/%{ruby_full}/gems/rake-%{rake_version}/rake.gemspec
-/%{share_gems}/gems/rake-%{rake_version}/doc/example/a.c
-/%{share_gems}/gems/rake-%{rake_version}/doc/example/b.c
-/%{share_gems}/gems/rake-%{rake_version}/doc/example/main.c
-/%{share_gems}/gems/rake-%{rake_version}/exe/rake
-/%{share_gems}/gems/rake-%{rake_version}/rake.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/bin/bundle
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/bin/console
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/bin/rake
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/bin/rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/bin/rubocop
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/bin/setup
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/CONTRIBUTING.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/doc/command_line_usage.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/doc/example/Rakefile1
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/doc/example/Rakefile2
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/doc/glossary.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/doc/jamis.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/doc/proto_rake.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/doc/rake.1
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/doc/rakefile.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/doc/rational.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/exts.mk
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/Gemfile
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/History.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/application.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/backtrace.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/clean.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/cloneable.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/cpu_counter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/default_loader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/dsl_definition.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/early_time.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/ext/core.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/ext/string.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/file_creation_task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/file_list.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/file_task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/file_utils_ext.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/file_utils.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/invocation_chain.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/invocation_exception_mixin.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/late_time.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/linked_list.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/loaders/makefile.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/multi_task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/name_space.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/packagetask.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/phony.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/private_reader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/promise.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/pseudo_status.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/rake_module.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/rake_test_loader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/rule_recursion_overflow_error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/scope.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/task_argument_error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/task_arguments.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/tasklib.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/task_manager.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/testtask.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/thread_history_display.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/thread_pool.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/trace_output.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/version.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/lib/rake/win32.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/MIT-LICENSE
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_version}/README.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/bundle
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/console
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/rake
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/rubocop
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/setup
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/CONTRIBUTING.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/command_line_usage.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/example/a.c
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/example/b.c
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/example/main.c
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/example/Rakefile1
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/example/Rakefile2
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/glossary.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/jamis.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/proto_rake.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/rake.1
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/rakefile.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/rational.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/exe/rake
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/Gemfile
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/.github/workflows/macos.yml
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/.github/workflows/ubuntu-rvm.yml
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/.github/workflows/ubuntu.yml
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/.github/workflows/windows.yml
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/History.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/application.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/backtrace.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/clean.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/cloneable.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/cpu_counter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/default_loader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/dsl_definition.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/early_time.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/ext/core.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/ext/string.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/file_creation_task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/file_list.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/file_task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/file_utils_ext.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/file_utils.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/invocation_chain.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/invocation_exception_mixin.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/late_time.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/linked_list.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/loaders/makefile.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/multi_task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/name_space.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/packagetask.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/phony.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/private_reader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/promise.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/pseudo_status.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/rake_module.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/rake_test_loader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/rule_recursion_overflow_error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/scope.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/task_argument_error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/task_arguments.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/tasklib.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/task_manager.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/testtask.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/thread_history_display.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/thread_pool.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/trace_output.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/version.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/win32.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/MIT-LICENSE
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/rake.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_version}/README.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/rake-%{rake_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/rake-%{rake_version}.gem
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/bundle
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/console
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/rake
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/rubocop
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/bin/setup
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/CONTRIBUTING.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/command_line_usage.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/example/Rakefile1
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/example/Rakefile2
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/glossary.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/jamis.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/proto_rake.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/rake.1
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/rakefile.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/doc/rational.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/Gemfile
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/.github/workflows/macos.yml
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/.github/workflows/ubuntu-rvm.yml
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/.github/workflows/ubuntu.yml
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/.github/workflows/windows.yml
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/History.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/application.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/backtrace.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/clean.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/cloneable.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/cpu_counter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/default_loader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/dsl_definition.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/early_time.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/ext/core.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/ext/string.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/file_creation_task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/file_list.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/file_task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/file_utils_ext.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/file_utils.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/invocation_chain.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/invocation_exception_mixin.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/late_time.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/linked_list.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/loaders/makefile.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/multi_task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/name_space.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/packagetask.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/phony.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/private_reader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/promise.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/pseudo_status.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/rake_module.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/rake_test_loader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/rule_recursion_overflow_error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/scope.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/task_argument_error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/task_arguments.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/tasklib.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/task_manager.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/task.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/testtask.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/thread_history_display.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/thread_pool.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/trace_output.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/version.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/lib/rake/win32.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/MIT-LICENSE
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_version}/README.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/rake-%{rake_version}.gemspec
+%dir %{gem_dir2}/gems/rake-%{rake_base_version}
+%{gem_dir2}/specifications/rake-%{rake_base_version}.gemspec
+%{share_ruby}/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/example/a.c
+%{share_ruby}/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/example/b.c
+%{share_ruby}/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/example/main.c
+%{share_ruby}/gems/%{ruby_full}/gems/rake-%{rake_base_version}/exe/rake
+%{share_ruby}/gems/%{ruby_full}/gems/rake-%{rake_base_version}/rake.gemspec
+/%{share_gems}/gems/rake-%{rake_base_version}/doc/example/a.c
+/%{share_gems}/gems/rake-%{rake_base_version}/doc/example/b.c
+/%{share_gems}/gems/rake-%{rake_base_version}/doc/example/main.c
+/%{share_gems}/gems/rake-%{rake_base_version}/exe/rake
+/%{share_gems}/gems/rake-%{rake_base_version}/rake.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/bin/bundle
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/bin/console
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/bin/rake
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/bin/rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/bin/rubocop
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/bin/setup
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/CONTRIBUTING.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/doc/command_line_usage.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/doc/example/Rakefile1
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/doc/example/Rakefile2
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/doc/glossary.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/doc/jamis.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/doc/proto_rake.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/doc/rake.1
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/doc/rakefile.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/doc/rational.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/exts.mk
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/Gemfile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/History.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/application.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/backtrace.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/clean.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/cloneable.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/cpu_counter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/default_loader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/dsl_definition.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/early_time.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/ext/core.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/ext/string.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/file_creation_task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/file_list.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/file_task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/file_utils_ext.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/file_utils.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/invocation_chain.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/invocation_exception_mixin.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/late_time.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/linked_list.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/loaders/makefile.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/multi_task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/name_space.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/packagetask.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/phony.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/private_reader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/promise.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/pseudo_status.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/rake_module.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/rake_test_loader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/rule_recursion_overflow_error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/scope.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/task_argument_error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/task_arguments.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/tasklib.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/task_manager.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/testtask.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/thread_history_display.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/thread_pool.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/trace_output.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/version.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/lib/rake/win32.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/MIT-LICENSE
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/rake-%{rake_base_version}/README.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/bundle
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/console
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/rake
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/rubocop
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/setup
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/CONTRIBUTING.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/command_line_usage.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/example/a.c
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/example/b.c
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/example/main.c
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/example/Rakefile1
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/example/Rakefile2
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/glossary.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/jamis.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/proto_rake.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/rake.1
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/rakefile.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/rational.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/exe/rake
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/Gemfile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/.github/workflows/macos.yml
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/.github/workflows/ubuntu-rvm.yml
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/.github/workflows/ubuntu.yml
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/.github/workflows/windows.yml
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/History.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/application.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/backtrace.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/clean.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/cloneable.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/cpu_counter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/default_loader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/dsl_definition.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/early_time.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/ext/core.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/ext/string.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/file_creation_task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/file_list.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/file_task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/file_utils_ext.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/file_utils.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/invocation_chain.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/invocation_exception_mixin.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/late_time.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/linked_list.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/loaders/makefile.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/multi_task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/name_space.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/packagetask.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/phony.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/private_reader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/promise.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/pseudo_status.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/rake_module.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/rake_test_loader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/rule_recursion_overflow_error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/scope.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/task_argument_error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/task_arguments.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/tasklib.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/task_manager.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/testtask.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/thread_history_display.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/thread_pool.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/trace_output.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/version.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/win32.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/MIT-LICENSE
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/rake.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rake-%{rake_base_version}/README.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/rake-%{rake_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/rake-%{rake_base_version}.gem
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/bundle
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/console
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/rake
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/rubocop
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/bin/setup
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/CONTRIBUTING.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/command_line_usage.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/example/Rakefile1
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/example/Rakefile2
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/glossary.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/jamis.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/proto_rake.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/rake.1
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/rakefile.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/doc/rational.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/Gemfile
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/.github/workflows/macos.yml
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/.github/workflows/ubuntu-rvm.yml
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/.github/workflows/ubuntu.yml
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/.github/workflows/windows.yml
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/History.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/application.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/backtrace.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/clean.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/cloneable.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/cpu_counter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/default_loader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/dsl_definition.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/early_time.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/ext/core.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/ext/string.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/file_creation_task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/file_list.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/file_task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/file_utils_ext.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/file_utils.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/invocation_chain.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/invocation_exception_mixin.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/late_time.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/linked_list.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/loaders/makefile.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/multi_task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/name_space.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/packagetask.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/phony.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/private_reader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/promise.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/pseudo_status.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/rake_module.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/rake_test_loader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/rule_recursion_overflow_error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/scope.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/task_argument_error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/task_arguments.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/tasklib.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/task_manager.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/task.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/testtask.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/thread_history_display.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/thread_pool.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/trace_output.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/version.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/lib/rake/win32.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/MIT-LICENSE
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rake-%{rake_base_version}/README.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/rake-%{rake_base_version}.gemspec
 
 %files irb
 %{_bindir}/irb
@@ -1816,18 +1848,18 @@ EOF}
 %{ruby_libdir_ver}/irb
 %{share_ruby}/gems/%{ruby_full}/gems/irb-*/exe/irb
 %{ruby_usr}/share/gems/gems/%{ruby_full}/gems/irb-*/exe/irb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/irb-%{irb_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/irb-%{irb_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/irb-%{irb_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/irb-%{irb_base_version}.gemspec
 
 %files -n %{?scl_prefix}rubygem-rdoc
-#%{gem_dir}/gems/rdoc-%{rdoc_version}/exe
+#%{gem_dir}/gems/rdoc-%{rdoc_base_version}/exe
 %{_bindir}/rdoc
 %{_bindir}/ri
-%{gem_dir}/gems/rdoc-%{rdoc_version}
-%{gem_dir}/specifications/rdoc-%{rdoc_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rdoc-%{rdoc_version}/exe/rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rdoc-%{rdoc_version}/exe/ri
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/rdoc-%{rdoc_version}.gemspec
+%{gem_dir}/gems/rdoc-%{rdoc_base_version}
+%{gem_dir}/specifications/rdoc-%{rdoc_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rdoc-%{rdoc_base_version}/exe/rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/rdoc-%{rdoc_base_version}/exe/ri
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/rdoc-%{rdoc_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/rdoc
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/rdoc.rb
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/rdoc/alias.rb
@@ -1999,8 +2031,8 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/rdoc/tom_doc.rb
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/rdoc/top_level.rb
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/rdoc/version.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rdoc-%{rdoc_version}/exe/rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rdoc-%{rdoc_version}/exe/ri
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rdoc-%{rdoc_base_version}/exe/rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/rdoc-%{rdoc_base_version}/exe/ri
 
 %files doc -f .ruby-doc.en -f .ruby-doc.ja
 %doc README.md
@@ -2043,19 +2075,19 @@ EOF}
 %{ruby_libdir_ver}/bigdecimal
 %{ruby_libarchdir_ver}/bigdecimal.so
 %{ruby_usr}/lib64/ruby/bigdecimal.so
-%{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_version}
-%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}
-%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/bigdecimal-%{bigdecimal_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/bigdecimal-%{bigdecimal_version}.gemspec
+%{_libdir}/gems/%{pkg_name}/bigdecimal-%{bigdecimal_base_version}
+%{gem_dir}/gems/bigdecimal-%{bigdecimal_base_version}
+%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/bigdecimal-%{bigdecimal_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/bigdecimal-%{bigdecimal_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/bigdecimal.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/bigdecimal.rb
 
 %files -n %{?scl_prefix}rubygem-did_you_mean
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/did_you_mean-%{did_you_mean_version}
-%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
+%{gem_dir}/gems/ruby-%{ruby_version}/gems/did_you_mean-%{did_you_mean_base_version}
+%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/did_you_mean-%{did_you_mean_base_version}.gemspec
 %{ruby_usr}/share/ruby/%{ruby_full}/did_you_mean/core_ext/name_error.rb
 %{ruby_usr}/share/ruby/%{ruby_full}/did_you_mean/experimental.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/did_you_mean-%{did_you_mean_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/did_you_mean/experimental/initializer_name_correction.rb
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/did_you_mean/experimental/ivar_name_correction.rb
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/did_you_mean/formatters/plain_formatter.rb
@@ -2077,85 +2109,85 @@ EOF}
 %files -n %{?scl_prefix}rubygem-io-console
 %{ruby_libdir_ver}/io
 %{ruby_libarchdir}/io/console.so
-%{_libdir}/gems/%{pkg_name}/io-console-%{io_console_version}
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/io-console-%{io_console_version}
-%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/io-console-%{io_console_version}.gemspec
+%{_libdir}/gems/%{pkg_name}/io-console-%{io_console_base_version}
+%{gem_dir}/gems/ruby-%{ruby_version}/gems/io-console-%{io_console_base_version}
+%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/io-console-%{io_console_base_version}.gemspec
 %{ruby_usr}/lib64/ruby/%{ruby_full}/io/console.so
 %{ruby_usr}/share/gems/gems/io-console-*/lib/io/console/size.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/io-console-%{io_console_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/io-console-%{io_console_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/io-console.gemspec
 
 %files -n %{?scl_prefix}rubygem-json
 %dir %{ruby_libarchdir_ver}/json
-%dir %{_libdir}/gems/%{pkg_name}/json-%{json_version}
-%dir %{gem_dir}/gems/ruby-%{ruby_version}/gems/json-%{json_version}
-%{gem_dir}/specifications/json-%{json_version}.gemspec
+%dir %{_libdir}/gems/%{pkg_name}/json-%{json_base_version}
+%dir %{gem_dir}/gems/ruby-%{ruby_version}/gems/json-%{json_base_version}
+%{gem_dir}/specifications/json-%{json_base_version}.gemspec
 %{ruby_usr}/lib64/gems/ruby/json-*/json/fbuffer/fbuffer.h
 %{ruby_usr}/share/gems/gems/json-*/lib/json.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/depend
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/extconf.h
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/extconf.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/exts.mk
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/generator/depend
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/generator/extconf.h
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/generator/extconf.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/generator/generator.c
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/generator/generator.h
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/generator/generator.o
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/generator/Makefile
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/generator/mkmf.log
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/json.gemspec
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/bigdecimal.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/complex.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/core.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/date.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/date_time.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/exception.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/ostruct.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/range.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/rational.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/regexp.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/set.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/struct.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/symbol.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/add/time.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/common.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/ext.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/generic_object.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/lib/json/version.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/Makefile
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/mkmf.log
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/parser/depend
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/parser/extconf.h
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/parser/extconf.rb
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/parser/Makefile
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/parser/mkmf.log
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/parser/parser.c
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/parser/parser.h
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/parser/parser.o
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/parser/parser.rl
-/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_version}/json/parser/prereq.mk
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/bigdecimal.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/complex.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/core.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/date.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/date_time.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/exception.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/ostruct.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/range.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/rational.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/regexp.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/set.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/struct.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/symbol.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/add/time.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/common.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/ext.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/generic_object.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_version}/lib/json/version.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/json-%{json_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/json-%{json_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/depend
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/extconf.h
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/extconf.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/exts.mk
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/generator/depend
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/generator/extconf.h
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/generator/extconf.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/generator/generator.c
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/generator/generator.h
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/generator/generator.o
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/generator/Makefile
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/generator/mkmf.log
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/json.gemspec
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/bigdecimal.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/complex.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/core.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/date.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/date_time.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/exception.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/ostruct.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/range.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/rational.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/regexp.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/set.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/struct.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/symbol.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/add/time.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/common.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/ext.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/generic_object.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/lib/json/version.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/Makefile
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/mkmf.log
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/parser/depend
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/parser/extconf.h
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/parser/extconf.rb
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/parser/Makefile
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/parser/mkmf.log
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/parser/parser.c
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/parser/parser.h
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/parser/parser.o
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/parser/parser.rl
+/opt/cpanel/ea-ruby27/root/usr/lib64/gems/ruby/json-%{json_base_version}/json/parser/prereq.mk
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/bigdecimal.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/complex.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/core.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/date.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/date_time.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/exception.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/ostruct.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/range.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/rational.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/regexp.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/set.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/struct.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/symbol.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/add/time.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/common.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/ext.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/generic_object.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/json-%{json_base_version}/lib/json/version.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/json-%{json_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/json-%{json_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/lib64/ruby/%{ruby_full}/json/ext/generator.so
 /opt/cpanel/ea-ruby27/root/usr/lib64/ruby/%{ruby_full}/json/ext/parser.so
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/json/add/bigdecimal.rb
@@ -2179,409 +2211,412 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/json/version.rb
 
 %files -n %{?scl_prefix}rubygem-minitest
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/minitest-%{minitest_version}
-%exclude %{gem_dir}/gems/ruby-%{ruby_version}/gems/minitest-%{minitest_version}/*
-%{gem_dir}/gems/ruby-%{ruby_version}/specifications/minitest-%{minitest_version}.gemspec
+%{gem_dir}/gems/ruby-%{ruby_version}/gems/minitest-%{minitest_base_version}
+%exclude %{gem_dir}/gems/ruby-%{ruby_version}/gems/minitest-%{minitest_base_version}/*
+%{gem_dir}/gems/ruby-%{ruby_version}/specifications/minitest-%{minitest_base_version}.gemspec
 %{share_ruby}/gems/%{ruby_full}/gems/minitest-*/.autotest
 %{share_ruby}/gems/%{ruby_full}/gems/minitest-*/lib/hoe/minitest.rb
 %{share_ruby}/gems/%{ruby_full}/gems/minitest-*/lib/minitest.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/minitest-%{minitest_version}.gem
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/design_rationale.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/History.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/assertions.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/autorun.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/benchmark.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/expectations.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/hell.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/mock.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/parallel.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/pride_plugin.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/pride.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/spec.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/test.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/lib/minitest/unit.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/Manifest.txt
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/README.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/test/minitest/metametameta.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/test/minitest/test_minitest_assertions.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/test/minitest/test_minitest_benchmark.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/test/minitest/test_minitest_mock.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/test/minitest/test_minitest_reporter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/test/minitest/test_minitest_spec.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_version}/test/minitest/test_minitest_test.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/minitest-%{minitest_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/minitest-%{minitest_version}
-/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/minitest-%{minitest_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/minitest-%{minitest_base_version}.gem
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/design_rationale.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/History.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/assertions.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/autorun.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/benchmark.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/expectations.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/hell.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/mock.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/parallel.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/pride_plugin.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/pride.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/spec.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/test.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/lib/minitest/unit.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/Manifest.txt
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/README.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/test/minitest/metametameta.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/test/minitest/test_minitest_assertions.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/test/minitest/test_minitest_benchmark.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/test/minitest/test_minitest_mock.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/test/minitest/test_minitest_reporter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/test/minitest/test_minitest_spec.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/minitest-%{minitest_base_version}/test/minitest/test_minitest_test.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/minitest-%{minitest_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/minitest-%{minitest_base_version}
+/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/minitest-%{minitest_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/minitest.gemspec
 
 %files -n %{?scl_prefix}rubygem-openssl
 %{ruby_libdir_ver}/openssl
 %{ruby_libdir_ver}/openssl.rb
 %{ruby_libarchdir_ver}/openssl.so
-%{_libdir}/gems/%{pkg_name}/openssl-%{openssl_version}
-%{gem_dir}/gems/openssl-%{openssl_version}
-%{gem_dir}/specifications/openssl-%{openssl_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/openssl-%{openssl_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/openssl-%{openssl_version}.gemspec
+%{_libdir}/gems/%{pkg_name}/openssl-%{openssl_base_version}
+%{gem_dir}/gems/openssl-%{openssl_base_version}
+%{gem_dir}/specifications/openssl-%{openssl_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/openssl-%{openssl_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/openssl-%{openssl_base_version}.gemspec
 
 %files -n %{?scl_prefix}rubygem-power_assert
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/power_assert-%{power_assert_version}
-%exclude %{gem_dir}/gems/ruby-%{ruby_version}/gems/power_assert-%{power_assert_version}/.*
-%{gem_dir}/gems/ruby-%{ruby_version}/specifications/power_assert-%{power_assert_version}.gemspec
+%{gem_dir}/gems/ruby-%{ruby_version}/gems/power_assert-%{power_assert_base_version}
+%exclude %{gem_dir}/gems/ruby-%{ruby_version}/gems/power_assert-%{power_assert_base_version}/.*
+%{gem_dir}/gems/ruby-%{ruby_version}/specifications/power_assert-%{power_assert_base_version}.gemspec
 %{share_ruby}/gems/%{ruby_full}/gems/power_assert-*/.gitignore
 %{share_ruby}/gems/%{ruby_full}/gems/power_assert-*/.travis.yml
 %{share_ruby}/gems/%{ruby_full}/gems/power_assert-*/bin/console
 %{share_ruby}/gems/%{ruby_full}/gems/power_assert-*/bin/setup
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/power_assert-%{power_assert_version}.gem
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/BSDL
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/COPYING
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/Gemfile
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/LEGAL
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/lib/power_assert/colorize.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/lib/power_assert/configuration.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/lib/power_assert/context.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/lib/power_assert/enable_tracepoint_events.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/lib/power_assert/inspector.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/lib/power_assert/parser.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/lib/power_assert.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/lib/power_assert/version.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/power_assert.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_version}/README.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/power_assert-%{power_assert_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/power_assert-%{power_assert_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/power_assert-%{power_assert_base_version}.gem
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/BSDL
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/COPYING
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/Gemfile
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/LEGAL
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/lib/power_assert/colorize.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/lib/power_assert/configuration.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/lib/power_assert/context.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/lib/power_assert/enable_tracepoint_events.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/lib/power_assert/inspector.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/lib/power_assert/parser.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/lib/power_assert.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/lib/power_assert/version.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/power_assert.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/power_assert-%{power_assert_base_version}/README.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/power_assert-%{power_assert_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/power_assert-%{power_assert_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/power_assert.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/BSDL
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/COPYING
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/Gemfile
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/LEGAL
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/README.rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/bin/console
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/bin/setup
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/exts.mk
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/lib/power_assert.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/lib/power_assert/colorize.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/lib/power_assert/configuration.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/lib/power_assert/context.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/lib/power_assert/enable_tracepoint_events.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/lib/power_assert/inspector.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/lib/power_assert/parser.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/lib/power_assert/version.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_version}/power_assert.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/BSDL
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/COPYING
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/Gemfile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/LEGAL
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/README.rdoc
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/bin/console
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/bin/setup
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/exts.mk
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/lib/power_assert.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/lib/power_assert/colorize.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/lib/power_assert/configuration.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/lib/power_assert/context.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/lib/power_assert/enable_tracepoint_events.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/lib/power_assert/inspector.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/lib/power_assert/parser.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/lib/power_assert/version.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/power_assert-%{power_assert_base_version}/power_assert.gemspec
 
 %files -n %{?scl_prefix}rubygem-psych
 %{ruby_libdir_ver}/psych
 %{ruby_libdir_ver}/psych.rb
 %{ruby_libarchdir_ver}/psych.so
-%{_libdir}/gems/%{pkg_name}/psych-%{psych_version}
-%{gem_dir}/gems/psych-%{psych_version}
-%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/psych-%{psych_version}.gemspec
+%{_libdir}/gems/%{pkg_name}/psych-%{psych_base_version}
+%{gem_dir}/gems/psych-%{psych_base_version}
+%{gem_dir}/gems/ruby-%{ruby_version}/specifications/default/psych-%{psych_base_version}.gemspec
 
 %files -n %{?scl_prefix}rubygem-net-telnet
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/net-telnet-%{net_telnet_version}
-%exclude %{gem_dir}/gems/ruby-%{ruby_version}/gems/net-telnet-%{net_telnet_version}/.*
-%{gem_dir}/gems/ruby-%{ruby_version}/specifications/net-telnet-%{net_telnet_version}.gemspec
+%{gem_dir}/gems/ruby-%{ruby_version}/gems/net-telnet-%{net_telnet_base_version}
+%exclude %{gem_dir}/gems/ruby-%{ruby_version}/gems/net-telnet-%{net_telnet_base_version}/.*
+%{gem_dir}/gems/ruby-%{ruby_version}/specifications/net-telnet-%{net_telnet_base_version}.gemspec
 %{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/.gitignore
 %{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/.travis.yml
 %{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/lib/net-telnet.rb
 %{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/lib/net/telnet.rb
 %{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/lib/net/telnet/version.rb
 %{share_ruby}/gems/%{ruby_full}/gems/net-telnet-*/net-telnet.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/net-telnet-%{net_telnet_version}.gem
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_version}/bin/console
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_version}/bin/setup
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_version}/Gemfile
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_version}/LICENSE.txt
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_version}/README.md
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/net-telnet-%{net_telnet_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/LICENSE.txt
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/README.md
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/bin/console
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/bin/setup
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/exts.mk
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/lib/net-telnet.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/lib/net/telnet.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/lib/net/telnet/version.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/net-telnet.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/net-telnet-%{net_telnet_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/net-telnet-%{net_telnet_base_version}.gem
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_base_version}/bin/console
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_base_version}/bin/setup
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_base_version}/Gemfile
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_base_version}/LICENSE.txt
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/net-telnet-%{net_telnet_base_version}/README.md
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/net-telnet-%{net_telnet_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/LICENSE.txt
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/README.md
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/bin/console
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/bin/setup
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/exts.mk
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/lib/net-telnet.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/lib/net/telnet.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/lib/net/telnet/version.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/net-telnet.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/net-telnet-%{net_telnet_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/net-telnet.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_version}/Gemfile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/net-telnet-%{net_telnet_base_version}/Gemfile
 
 %files -n %{?scl_prefix}rubygem-test-unit
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/test-unit-%{test_unit_version}
-%{gem_dir}/gems/ruby-%{ruby_version}//specifications/test-unit-%{test_unit_version}.gemspec
+%{gem_dir}/gems/ruby-%{ruby_version}/gems/test-unit-%{test_unit_base_version}
+%{gem_dir}/gems/ruby-%{ruby_version}//specifications/test-unit-%{test_unit_base_version}.gemspec
 %{share_ruby}/gems/%{ruby_full}/gems/test-unit-*/lib/test/unit/version.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/test-unit-%{test_unit_version}.gem
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/COPYING
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/doc/text/getting-started.md
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/doc/text/how-to.md
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/doc/text/news.md
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/GPL
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/LGPL
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/assertion-failed-error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/assertions.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/attribute-matcher.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/attribute.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/auto-runner-loader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/autorunner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/code-snippet-fetcher.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/collector/descendant.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/collector/dir.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/collector/load.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/collector/objectspace.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/collector.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/collector/xml.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/color.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/color-scheme.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/data.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/data-sets.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/diff.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/exception-handler.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/failure.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/fault-location-detector.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/fixture.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/notification.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/omission.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/pending.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/priority.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test-unit.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/runner/console.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/runner/emacs.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/runner/xml.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/testcase.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/testresult.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/test-suite-creator.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/testsuite.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/console/outputlevel.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/console/testrunner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/emacs/testrunner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/testrunnermediator.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/testrunner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/testrunnerutilities.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/xml/testrunner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/util/backtracefilter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/util/method-owner-finder.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/util/observable.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/util/output.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/lib/test/unit/util/procwrapper.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/PSFL
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/README.md
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/sample/adder.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/sample/subtracter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/sample/test_adder.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/sample/test_subtracter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/sample/test_user.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/collector/test-descendant.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/collector/test_dir.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/collector/test-load.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/collector/test_objectspace.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/fixtures/header.csv
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/fixtures/header-label.csv
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/fixtures/header-label.tsv
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/fixtures/header.tsv
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/fixtures/no-header.csv
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/fixtures/no-header.tsv
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/fixtures/plus.csv
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/run-test.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-assertions.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-attribute-matcher.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-attribute.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-code-snippet.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-color.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-color-scheme.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-data.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-diff.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-emacs-runner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-failure.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-fault-location-detector.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-fixture.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-notification.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-omission.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-pending.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-priority.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-test-case.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-test-result.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-test-suite-creator.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/test-test-suite.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/testunit-test-util.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/ui/test_testrunmediator.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/util/test_backtracefilter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/util/test-method-owner-finder.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/util/test_observable.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/util/test-output.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_version}/test/util/test_procwrapper.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/test-unit-%{test_unit_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/COPYING
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/GPL
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/LGPL
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/PSFL
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/README.md
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/doc/text/getting-started.md
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/doc/text/how-to.md
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/doc/text/news.md
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/exts.mk
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test-unit.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/assertion-failed-error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/assertions.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/attribute-matcher.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/attribute.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/auto-runner-loader.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/autorunner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/code-snippet-fetcher.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/collector.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/collector/descendant.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/collector/dir.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/collector/load.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/collector/objectspace.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/collector/xml.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/color-scheme.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/color.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/data-sets.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/data.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/diff.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/exception-handler.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/failure.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/fault-location-detector.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/fixture.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/notification.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/omission.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/pending.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/priority.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/runner/console.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/runner/emacs.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/runner/xml.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/test-suite-creator.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/testcase.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/testresult.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/testsuite.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/console/outputlevel.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/console/testrunner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/emacs/testrunner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/testrunner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/testrunnermediator.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/testrunnerutilities.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/ui/xml/testrunner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/util/backtracefilter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/util/method-owner-finder.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/util/observable.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/util/output.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/util/procwrapper.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/lib/test/unit/version.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/sample/adder.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/sample/subtracter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/sample/test_adder.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/sample/test_subtracter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/sample/test_user.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test-unit.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/collector/test-descendant.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/collector/test-load.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/collector/test_dir.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/collector/test_objectspace.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/fixtures/header-label.csv
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/fixtures/header-label.tsv
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/fixtures/header.csv
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/fixtures/header.tsv
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/fixtures/no-header.csv
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/fixtures/no-header.tsv
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/fixtures/plus.csv
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/run-test.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-assertions.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-attribute-matcher.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-attribute.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-code-snippet.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-color-scheme.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-color.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-data.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-diff.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-emacs-runner.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-error.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-failure.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-fault-location-detector.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-fixture.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-notification.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-omission.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-pending.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-priority.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-test-case.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-test-result.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-test-suite-creator.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/test-test-suite.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/testunit-test-util.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/ui/test_testrunmediator.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/util/test-method-owner-finder.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/util/test-output.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/util/test_backtracefilter.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/util/test_observable.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_version}/test/util/test_procwrapper.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/test-unit-%{test_unit_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/test-unit-%{test_unit_base_version}.gem
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/COPYING
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/doc/text/getting-started.md
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/doc/text/how-to.md
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/doc/text/news.md
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/GPL
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/LGPL
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/assertion-failed-error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/assertions.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/attribute-matcher.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/attribute.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/auto-runner-loader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/autorunner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/code-snippet-fetcher.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector/descendant.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector/dir.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector/load.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector/objectspace.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector/xml.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/color.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/color-scheme.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/data.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/data-sets.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/diff.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/exception-handler.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/failure.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/fault-location-detector.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/fixture.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/notification.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/omission.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/pending.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/priority.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test-unit.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/runner/console.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/runner/emacs.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/runner/xml.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/testcase.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/testresult.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/test-suite-creator.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/testsuite.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/console/outputlevel.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/console/testrunner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/emacs/testrunner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/testrunnermediator.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/testrunner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/testrunnerutilities.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/xml/testrunner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/util/backtracefilter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/util/method-owner-finder.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/util/observable.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/util/output.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/lib/test/unit/util/procwrapper.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/PSFL
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/README.md
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/sample/adder.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/sample/subtracter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/sample/test_adder.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/sample/test_subtracter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/sample/test_user.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/collector/test-descendant.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/collector/test_dir.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/collector/test-load.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/collector/test_objectspace.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/fixtures/header.csv
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/fixtures/header-label.csv
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/fixtures/header-label.tsv
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/fixtures/header.tsv
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/fixtures/no-header.csv
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/fixtures/no-header.tsv
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/fixtures/plus.csv
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/run-test.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-assertions.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-attribute-matcher.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-attribute.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-code-snippet.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-color.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-color-scheme.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-data.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-diff.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-emacs-runner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-failure.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-fault-location-detector.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-fixture.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-notification.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-omission.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-pending.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-priority.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-test-case.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-test-result.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-test-suite-creator.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/test-test-suite.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/testunit-test-util.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/ui/test_testrunmediator.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/util/test_backtracefilter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/util/test-method-owner-finder.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/util/test_observable.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/util/test-output.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/test-unit-%{test_unit_base_version}/test/util/test_procwrapper.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/test-unit-%{test_unit_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/COPYING
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/GPL
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/LGPL
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/PSFL
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/README.md
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/doc/text/getting-started.md
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/doc/text/how-to.md
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/doc/text/news.md
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/exts.mk
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test-unit.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/assertion-failed-error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/assertions.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/attribute-matcher.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/attribute.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/auto-runner-loader.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/autorunner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/code-snippet-fetcher.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector/descendant.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector/dir.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector/load.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector/objectspace.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/collector/xml.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/color-scheme.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/color.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/data-sets.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/data.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/diff.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/exception-handler.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/failure.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/fault-location-detector.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/fixture.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/notification.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/omission.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/pending.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/priority.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/runner/console.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/runner/emacs.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/runner/xml.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/test-suite-creator.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/testcase.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/testresult.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/testsuite.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/console/outputlevel.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/console/testrunner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/emacs/testrunner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/testrunner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/testrunnermediator.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/testrunnerutilities.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/ui/xml/testrunner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/util/backtracefilter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/util/method-owner-finder.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/util/observable.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/util/output.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/util/procwrapper.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/lib/test/unit/version.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/sample/adder.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/sample/subtracter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/sample/test_adder.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/sample/test_subtracter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/sample/test_user.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test-unit.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/collector/test-descendant.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/collector/test-load.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/collector/test_dir.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/collector/test_objectspace.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/fixtures/header-label.csv
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/fixtures/header-label.tsv
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/fixtures/header.csv
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/fixtures/header.tsv
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/fixtures/no-header.csv
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/fixtures/no-header.tsv
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/fixtures/plus.csv
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/run-test.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-assertions.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-attribute-matcher.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-attribute.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-code-snippet.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-color-scheme.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-color.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-data.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-diff.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-emacs-runner.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-error.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-failure.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-fault-location-detector.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-fixture.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-notification.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-omission.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-pending.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-priority.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-test-case.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-test-result.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-test-suite-creator.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/test-test-suite.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/testunit-test-util.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/ui/test_testrunmediator.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/util/test-method-owner-finder.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/util/test-output.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/util/test_backtracefilter.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/util/test_observable.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/test-unit-%{test_unit_base_version}/test/util/test_procwrapper.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/test-unit-%{test_unit_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/test-unit.gemspec
 
 %files -n %{?scl_prefix}rubygem-xmlrpc
-%doc %{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_version}/LICENSE.txt
-%dir %{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_version}
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_version}/Gemfile
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_version}/Rakefile
-%doc %{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_version}/README.md
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_version}/bin
-%{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_version}/lib
-%{gem_dir}/gems/ruby-%{ruby_version}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
+%doc %{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_base_version}/LICENSE.txt
+%dir %{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_base_version}
+%{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_base_version}/Gemfile
+%{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_base_version}/Rakefile
+%doc %{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_base_version}/README.md
+%{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_base_version}/bin
+%{gem_dir}/gems/ruby-%{ruby_version}/gems/xmlrpc-%{xmlrpc_base_version}/lib
+%{gem_dir}/gems/ruby-%{ruby_version}/specifications/xmlrpc-%{xmlrpc_base_version}.gemspec
 %{share_ruby}/gems/%{ruby_full}/gems/xmlrpc-*/.gitignore
 %{share_ruby}/gems/%{ruby_full}/gems/xmlrpc-*/.travis.yml
 %{share_gems}/gems/%{ruby_full}/gems/xmlrpc-*/.gitignore
 %{share_gems}/gems/%{ruby_full}/gems/xmlrpc-*/.travis.yml
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/xmlrpc-%{xmlrpc_version}.gem
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/bin/console
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/bin/setup
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/Gemfile
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/base64.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/client.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/config.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/create.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/datetime.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/marshal.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/parser.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/server.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/utils.rb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/LICENSE.txt
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/README.md
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/Gemfile
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/LICENSE.txt
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/README.md
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/Rakefile
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/bin/console
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/bin/setup
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/exts.mk
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/base64.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/client.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/config.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/create.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/datetime.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/marshal.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/parser.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/server.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/lib/xmlrpc/utils.rb
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc-%{xmlrpc_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/xmlrpc.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/cache/xmlrpc-%{xmlrpc_base_version}.gem
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/bin/console
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/bin/setup
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/Gemfile
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/base64.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/client.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/config.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/create.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/datetime.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/marshal.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/parser.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/server.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/utils.rb
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/LICENSE.txt
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/README.md
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/xmlrpc-%{xmlrpc_base_version}/xmlrpc.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/xmlrpc-%{xmlrpc_base_version}.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/Gemfile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/LICENSE.txt
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/README.md
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/Rakefile
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/bin/console
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/bin/setup
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/exts.mk
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/base64.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/client.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/config.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/create.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/datetime.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/marshal.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/parser.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/server.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/lib/xmlrpc/utils.rb
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/xmlrpc-%{xmlrpc_base_version}/xmlrpc.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc-%{xmlrpc_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Mon Jun 14 2021 Julian Brown <julian.brown@cpanel.net> - 2.7.3-1
+- EA-9864: Update ea-ruby27 from v2.7.2 to v2.7.3
+
 * Tue Jun 08 2021 Travis Holloway <t.holloway@cpanel.net> - 2.7.2-8
 - EA-9801: Reduce time needed to install this package
 
