@@ -21,8 +21,33 @@ sub run {
     my ( $old_version, $new_version ) = @_;
 
     my $repo_path = ea4_tool::util::get_path_of_repo('ea-ruby27');
-
     local $CWD = $repo_path;
+
+    # Regardless of any changes to the ruby gems versions we still
+    # need to update the ruby gems so they build against this version
+    # of ea-ruby27
+
+    {
+        my $git    = ea4_tool::util::git($CWD);
+        my $branch = $git->current_branch();
+
+        my $case;
+        if ( $branch =~ m/^(.*)-ea-ruby27$/ ) {
+            $case = $1;
+        }
+
+        die "Could not determine case" if !$case;
+
+        # we execute it directly here because we do not have an $app object to pass to ea4_tool::cmd::change::run()
+
+        my $et = '/root/git/ea-tools/bin/ea4-tool';
+        print "Case :$case:\n";
+
+        for my $repo (qw(rubygem-mizuho rubygem-nokogiri rubygem-rack rubygem-sqlite3)) {
+            my $cmd = "$et change ea-ruby27-$repo $case 'ea-ruby27 was updated from v$old_version to v$new_version'";
+            system($cmd) && warn "Could not update “$repo”! This will need done manually:\n\t$cmd\n";
+        }
+    }
 
     my $spec = ea4_tool::util::specfile($CWD);
 
@@ -169,6 +194,7 @@ sub run {
         print "Actions are necessary!\n";
     }
 
+    rmdir $work_dir;
     print "Done!\n";
 
     return 1;
