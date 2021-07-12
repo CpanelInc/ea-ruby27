@@ -21,7 +21,7 @@ sub run {
     my ( $old_version, $new_version ) = @_;
 
     my $repo_path = ea4_tool::util::get_path_of_repo('ea-ruby27');
-    local $CWD = Path::Tiny::path($repo_path)->stringify();
+    local $CWD = $repo_path;
 
     # Regardless of any changes to the ruby gems versions we still
     # need to update the ruby gems so they build against this version
