@@ -20,54 +20,34 @@ exit( run(@ARGV) ? 0 : 1 ) if !caller;
 sub run {
     my ( $old_version, $new_version ) = @_;
 
+    my $repo_path = ea4_tool::util::get_path_of_repo('ea-ruby27');
+    local $CWD = Path::Tiny::path($repo_path)->stringify();
+
     # Regardless of any changes to the ruby gems versions we still
     # need to update the ruby gems so they build against this version
     # of ea-ruby27
 
     {
-        my $repo_path = ea4_tool::util::get_path_of_repo('ea-ruby27');
-        local $CWD = Path::Tiny::path($repo_path);
-
         my $git    = ea4_tool::util::git($CWD);
-        my @output = $git->run('status');
-        my $branch;
-        foreach my $line (@output) {
-            if ( $line =~ m/^On branch (.*)$/ ) {
-                $branch = $1;
-            }
-        }
-
-        die "Could not determine branch" if !$branch;
+        my $branch = $git->current_branch();
 
         my $case;
-
         if ( $branch =~ m/^(.*)-ea-ruby27$/ ) {
             $case = $1;
         }
 
         die "Could not determine case" if !$case;
 
-        # I wanted to call directly into ea4_tool::cmd::change, but
-        # I did not know how to evaluate some of the parms, so this
-        # is easier and safe
+        # we execute it directly here because we do not have an $app object to pass to ea4_tool::cmd::change::run()
 
         my $et = '/root/git/ea-tools/bin/ea4-tool';
         print "Case :$case:\n";
 
-        my $git_dir = Path::Tiny::path($repo_path)->parent()->stringify();
-        $CWD = $git_dir;
-
-        # I do not believe change allows for a dry run, so I did not test
-        # beyond here.
-
-        print `$et change ea-ruby27-rubygem-mizuho $case "ea-ruby27 was updated"` . "\n";
-        print `$et change ea-ruby27-rubygem-nokogiri $case "ea-ruby27 was updated"` . "\n";
-        print `$et change ea-ruby27-rubygem-rack $case "ea-ruby27 was updated"` . "\n";
-        print `$et change ea-ruby27-rubygem-sqlite3 $case "ea-ruby27 was updated"` . "\n";
+        for my $repo (qw(rubygem-mizuho rubygem-nokogiri rubygem-rack rubygem-sqlite3)) {
+            my $cmd = "$et change ea-ruby27-$repo $case 'ea-ruby27 was updated from v$old_version to v$new_version'";
+            system($cmd) && warn "Could not update “$repo”! This will need done manually:\n\t$cmd\n";
+        }
     }
-
-    my $repo_path = ea4_tool::util::get_path_of_repo('ea-ruby27');
-    local $CWD = $repo_path;
 
     my $spec = ea4_tool::util::specfile($CWD);
 
