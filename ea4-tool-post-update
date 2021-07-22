@@ -151,6 +151,7 @@ sub run {
 
             printf( "%-15.15s %-8.8s %-10.10s %-s\n", $gemspec, $exists, $gemspec_files{$gemspec}->{version}, $file );
         }
+        rmdir $work_dir;
     }
 
     my $fixed = 0;
@@ -194,7 +195,6 @@ sub run {
         print "Actions are necessary!\n";
     }
 
-    rmdir $work_dir;
     print "Done!\n";
 
     return 1;
