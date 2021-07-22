@@ -14,6 +14,7 @@ use ea4_tool::util ();
 use File::chdir;
 use File::Glob;
 use Path::Tiny;
+use File::Path;
 
 exit( run(@ARGV) ? 0 : 1 ) if !caller;
 
@@ -151,7 +152,6 @@ sub run {
 
             printf( "%-15.15s %-8.8s %-10.10s %-s\n", $gemspec, $exists, $gemspec_files{$gemspec}->{version}, $file );
         }
-        rmdir $work_dir;
     }
 
     my $fixed = 0;
@@ -197,6 +197,7 @@ sub run {
 
     print "Done!\n";
 
+    rmtree "SOURCES/ruby-${new_version}";
     return 1;
 }
 
