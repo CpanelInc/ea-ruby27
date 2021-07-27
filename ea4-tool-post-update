@@ -11,6 +11,7 @@ use warnings;
 
 use lib "../ea-tools/lib/ea4_tool";    # assumes ea-tools is checked out next to this repo
 use ea4_tool::util ();
+use ea4_tool::util::gitapi;
 use File::chdir;
 use File::Glob;
 use Path::Tiny;
@@ -45,8 +46,10 @@ sub run {
         print "Case :$case:\n";
 
         for my $repo (qw(rubygem-mizuho rubygem-nokogiri rubygem-rack rubygem-sqlite3)) {
-            my $cmd = "$et change ea-ruby27-$repo $case 'ea-ruby27 was updated from v$old_version to v$new_version'";
+            my $changelog = "ea-ruby27 was updated from v$old_version to v$new_version";
+            my $cmd       = "$et change ea-ruby27-$repo $case '$changelog'";
             system($cmd) && warn "Could not update “$repo”! This will need done manually:\n\t$cmd\n";
+            _generate_pr( "ea-ruby27-$repo", $changelog );
         }
     }
 
@@ -189,7 +192,7 @@ sub run {
 
         $git->run( add    => $spec );
         $git->run( commit => "-m", "$branch: Updated one or more gemspec versions" );
-        ea4_tool::util::push_to_upstream_or_origin( $git, "$branch" );
+        ea4_tool::util::pushup( $git, "$branch" );
     }
     else {
         print "Actions are necessary!\n";
@@ -231,6 +234,33 @@ sub _get_version {
     }
 
     return $version;
+}
+
+sub _generate_pr {
+    my ( $repo, $changelog ) = @_;
+
+    print "Generating PR for $repo …\n";
+
+    my $repo_path = ea4_tool::util::get_path_of_repo($repo);
+    local $CWD = $repo_path;
+
+    my $git    = ea4_tool::util::git($CWD);
+    my $branch = $git->current_branch();
+
+    my $case;
+    if ( $branch =~ m/^(.*)-\Q$repo\E$/ ) {
+        $case = $1;
+    }
+    die "Could not determine case" if !$case;
+
+    ea4_tool::util::pushup( $git, "$branch" );
+
+    my $gitapi = ea4_tool::util::gitapi->new();
+    my $title  = "$case: $changelog";
+
+    $gitapi->create_pull_request( $repo => $title, $branch => "master" );
+
+    return;
 }
 
 1;
