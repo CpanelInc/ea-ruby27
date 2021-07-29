@@ -17,10 +17,10 @@ string.
  2 files changed, 35 insertions(+), 30 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index af170ef..b67203b 100644
+index 826a688..406a435 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3704,9 +3704,6 @@ AS_CASE(["$target_os"],
+@@ -3710,9 +3710,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index af170ef..b67203b 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -3729,56 +3726,62 @@ AC_ARG_WITH(ridir,
+@@ -3735,56 +3732,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index af170ef..b67203b 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -3795,6 +3798,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -3801,6 +3804,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
