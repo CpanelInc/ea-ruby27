@@ -8,7 +8,7 @@ Subject: [PATCH 04/13] Let headers directories follow the configured version
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index b67203b..e94cfca 100644
+index 406a435..e6fa955 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -98,7 +98,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`

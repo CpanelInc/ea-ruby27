@@ -8,10 +8,10 @@ Subject: [PATCH 06/13] Allow to configure libruby.so placement.
  1 file changed, 5 insertions(+)
 
 diff --git a/configure.ac b/configure.ac
-index 7a5f72e..465d657 100644
+index f77dfdd..8e57814 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3115,6 +3115,11 @@ AS_IF([test ${multiarch+set}], [
+@@ -3121,6 +3121,11 @@ AS_IF([test ${multiarch+set}], [
  ])
  
  archlibdir='${libdir}/${arch}'

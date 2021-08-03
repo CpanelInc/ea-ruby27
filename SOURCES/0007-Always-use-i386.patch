@@ -8,10 +8,10 @@ Subject: [PATCH 07/13] Always use i386.
  1 file changed, 2 insertions(+)
 
 diff --git a/configure.ac b/configure.ac
-index 465d657..c2f1818 100644
+index 8e57814..fdff73f 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3817,6 +3817,8 @@ AC_SUBST(vendorarchdir)dnl
+@@ -3823,6 +3823,8 @@ AC_SUBST(vendorarchdir)dnl
  AC_SUBST(CONFIGURE, "`echo $0 | sed 's|.*/||'`")dnl
  AC_SUBST(configure_args, "`echo "${ac_configure_args}" | sed 's/\\$/$$/g'`")dnl
  
