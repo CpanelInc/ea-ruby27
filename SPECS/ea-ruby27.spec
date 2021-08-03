@@ -38,7 +38,7 @@
 %global psych_base_version 3.1.0
 %global racc_base_version 1.4.16
 %global rake_base_version 13.0.1
-%global rdoc_base_version 6.2.1
+%global rdoc_base_version 6.2.1.1
 %global rexml_base_version 3.2.3.1
 %global test_unit_base_version 3.3.4
 %global webrick_base_version 1.6.1
@@ -71,7 +71,7 @@
 
 Summary: An interpreter of object-oriented scripting language
 Name: %{?scl_prefix}ruby
-Version: 2.7.3
+Version: 2.7.4
 Release: %{release_prefix}%{?dist}.cpanel
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
@@ -105,33 +105,35 @@ Source100: load.inc
 %global ruby_release %{ruby_version}
 %global ruby_archive %{pkg_name}-%{ruby_version}
 
+%global version_prefix 27
+
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
 #
 # Refactored versioning to include ruby version so that it updates
 # nicely.
 
-%global bigdecimal_version %{bigdecimal_base_version}.%{ruby_version}
-%global bundler_version %{bundler_base_version}.%{ruby_version}
-%global did_you_mean_version %{did_you_mean_base_version}.%{ruby_version}
-%global io_console_version %{io_console_base_version}.%{ruby_version}
-%global irb_version %{irb_base_version}.%{ruby_version}
-%global json_version %{json_base_version}.%{ruby_version}
-%global minitest_version %{minitest_base_version}.%{ruby_version}
-%global net_telnet_version %{net_telnet_base_version}.%{ruby_version}
-%global openssl_version %{openssl_base_version}.%{ruby_version}
-%global power_assert_version %{power_assert_base_version}.%{ruby_version}
-%global psych_version %{psych_base_version}.%{ruby_version}
-%global racc_version %{racc_base_version}.%{ruby_version}
-%global rake_version %{rake_base_version}.%{ruby_version}
-%global rdoc_version %{rdoc_base_version}.%{ruby_version}
-%global rexml_version %{rexml_base_version}.%{ruby_version}
-%global test_unit_version %{test_unit_base_version}.%{ruby_version}
-%global webrick_version %{webrick_base_version}.%{ruby_version}
-%global xmlrpc_version %{xmlrpc_base_version}.%{ruby_version}
-%global molinillo_version %{molinillo_base_version}.%{ruby_version}
+%global bigdecimal_version %{version_prefix}.%{ruby_version}.%{bigdecimal_base_version}
+%global bundler_version %{version_prefix}.%{ruby_version}.%{bundler_base_version}
+%global did_you_mean_version %{version_prefix}.%{ruby_version}.%{did_you_mean_base_version}
+%global io_console_version %{version_prefix}.%{ruby_version}.%{io_console_base_version}
+%global irb_version %{version_prefix}.%{ruby_version}.%{irb_base_version}
+%global json_version %{version_prefix}.%{ruby_version}.%{json_base_version}
+%global minitest_version %{version_prefix}.%{ruby_version}.%{minitest_base_version}
+%global net_telnet_version %{version_prefix}.%{ruby_version}.%{net_telnet_base_version}
+%global openssl_version %{version_prefix}.%{ruby_version}.%{openssl_base_version}
+%global power_assert_version %{version_prefix}.%{ruby_version}.%{power_assert_base_version}
+%global psych_version %{version_prefix}.%{ruby_version}.%{psych_base_version}
+%global racc_version %{version_prefix}.%{ruby_version}.%{racc_base_version}
+%global rake_version %{version_prefix}.%{ruby_version}.%{rake_base_version}
+%global rdoc_version %{version_prefix}.%{ruby_version}.%{rdoc_base_version}
+%global rexml_version %{version_prefix}.%{ruby_version}.%{rexml_base_version}
+%global test_unit_version %{version_prefix}.%{ruby_version}.%{test_unit_base_version}
+%global webrick_version %{version_prefix}.%{ruby_version}.%{webrick_base_version}
+%global xmlrpc_version %{version_prefix}.%{ruby_version}.%{xmlrpc_base_version}
+%global molinillo_version %{version_prefix}.%{ruby_version}.%{molinillo_base_version}
 
-%global rubygems_version %{rubygems_base_version}.%{ruby_version}
+%global rubygems_version %{version_prefix}.%{ruby_version}.%{rubygems_base_version}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
 # RubyGems should be share by all Ruby implementations.
@@ -2614,6 +2616,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Thu Jul 29 2021 Travis Holloway <t.holloway@cpanel.net> - 2.7.4-1
+- EA-10007: Update ea-ruby27 from v2.7.3 to v2.7.4
+
 * Mon Jun 14 2021 Julian Brown <julian.brown@cpanel.net> - 2.7.3-1
 - EA-9864: Update ea-ruby27 from v2.7.2 to v2.7.3
 
