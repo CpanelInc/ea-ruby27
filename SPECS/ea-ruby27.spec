@@ -33,7 +33,7 @@
 %global json_base_version 2.3.0
 %global minitest_base_version 5.13.0
 %global net_telnet_base_version 0.2.0
-%global openssl_base_version 2.1.2
+%global openssl_base_version 2.1.3
 %global power_assert_base_version 1.1.7
 %global psych_base_version 3.1.0
 %global racc_base_version 1.4.16
@@ -982,9 +982,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/racc-%{racc_base_version}/bin/y2racc
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/benchmark-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/bundler-%{bundler_base_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/cgi-0.1.0.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/cgi-0.1.0.1.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/csv-3.1.2.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/date-3.0.0.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/date-3.0.3.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/dbm-1.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/delegate-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/etc-1.1.0.gemspec
@@ -1028,9 +1028,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/racc-%{racc_base_version}/bin/y2racc
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/benchmark-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/bundler-%{bundler_base_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/cgi-0.1.0.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/cgi-0.1.0.1.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/csv-3.1.2.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/date-3.0.0.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/date-3.0.3.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/dbm-1.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/delegate-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/etc-1.1.0.gemspec
@@ -1400,16 +1400,6 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/weakref.rb
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/webrick.rb
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/%{ruby_full}/yaml.rb
-
-# new files from 2.7.3
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/bundle
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/bundler
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/irb
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/racc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/racc2y
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/rdoc
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/ri
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/ruby-%{ruby_version}/exe/y2racc
 
 %dir %{_exec_prefix}/share/ruby/
 %dir %{gem_dir}/gems/
