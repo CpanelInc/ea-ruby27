@@ -98,13 +98,16 @@ sub run {
             file => "ruby-${new_version}/ext/json/json.gemspec",
         };
         $gemspec_files{openssl} = {
-            file => "ruby-${new_version}/ext/openssl/openssl.gemspec",
+            file       => "ruby-${new_version}/ext/openssl/openssl.gemspec",
+            search_for => 'spec.version',
         };
         $gemspec_files{psych} = {
             file       => "ruby-${new_version}/ext/psych/lib/psych/versions.rb",
             search_for => 'VERSION',
         };
-        $gemspec_files{racc} = { file => "ruby-${new_version}/lib/racc/racc.gemspec" };
+        $gemspec_files{racc} = {
+            file => "ruby-${new_version}/lib/racc/racc.gemspec",
+        };
         $gemspec_files{rdoc} = {
             file       => "ruby-${new_version}/lib/rdoc/version.rb",
             search_for => 'VERSION',
