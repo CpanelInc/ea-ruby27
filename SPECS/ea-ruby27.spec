@@ -63,7 +63,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 1
+%define release_prefix 2
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -2606,6 +2606,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Tue Dec 28 2021 Dan Muey <dan@cpanel.net> - 2.7.5-2
+- ZC-9589: Update DISABLE_BUILD to match OBS
+
 * Wed Nov 24 2021 Travis Holloway <t.holloway@cpanel.net> - 2.7.5-1
 - EA-10301: Update ea-ruby27 from v2.7.4 to v2.7.5
 
