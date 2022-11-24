@@ -33,7 +33,7 @@
 %global json_base_version 2.3.0
 %global minitest_base_version 5.13.0
 %global net_telnet_base_version 0.2.0
-%global openssl_base_version 2.1.3
+%global openssl_base_version 2.1.4
 %global power_assert_base_version 1.1.7
 %global psych_base_version 3.1.0
 %global racc_base_version 1.4.16
@@ -982,7 +982,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/gems/racc-%{racc_base_version}/bin/y2racc
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/benchmark-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/bundler-%{bundler_base_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/cgi-0.1.0.1.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/cgi-0.1.0.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/csv-3.1.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/date-3.0.3.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/dbm-1.1.0.gemspec
@@ -1028,7 +1028,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/gems/racc-%{racc_base_version}/bin/y2racc
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/benchmark-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/bundler-%{bundler_base_version}.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/cgi-0.1.0.1.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/cgi-0.1.0.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/csv-3.1.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/date-3.0.3.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/dbm-1.1.0.gemspec
