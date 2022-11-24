@@ -71,7 +71,7 @@
 
 Summary: An interpreter of object-oriented scripting language
 Name: %{?scl_prefix}ruby
-Version: 2.7.6
+Version: 2.7.7
 Release: %{release_prefix}%{?dist}.cpanel
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
@@ -2606,6 +2606,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Thu Nov 24 2022 Travis Holloway <t.holloway@cpanel.net> - 2.7.7-1
+- EA-11073: Update ea-ruby27 from v2.7.6 to v2.7.7
+
 * Tue Apr 12 2022 Cory McIntire <cory@cpanel.net> - 2.7.6-1
 - EA-10620: Update ea-ruby27 from v2.7.5 to v2.7.6
 
