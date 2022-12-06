@@ -8,7 +8,7 @@ Subject: [PATCH 09/13] Verbose mkmf.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/lib/mkmf.rb b/lib/mkmf.rb
-index eabccd4..cf30689 100644
+index 27bc9e5..4b046bf 100644
 --- a/lib/mkmf.rb
 +++ b/lib/mkmf.rb
 @@ -1930,7 +1930,7 @@ SRC
