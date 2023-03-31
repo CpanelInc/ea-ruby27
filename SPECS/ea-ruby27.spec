@@ -71,7 +71,7 @@
 
 Summary: An interpreter of object-oriented scripting language
 Name: %{?scl_prefix}ruby
-Version: 2.7.7
+Version: 2.7.8
 Release: %{release_prefix}%{?dist}.cpanel
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
@@ -141,7 +141,7 @@ Source100: load.inc
 
 %include %{SOURCE100}
 
-# NOTE: the macro load syntax is not working with our macro files on C8. 
+# NOTE: the macro load syntax is not working with our macro files on C8.
 # So I am going to manually do them here.   Also if they change
 # in the SOURCE file they need to change here as well.
 # The SOURCE files are distributed with Ruby, so I do not know
@@ -1017,7 +1017,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/strscan-1.0.3.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/timeout-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/tracer-0.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/uri-0.10.0.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/uri-0.10.0.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/webrick-%{webrick_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/yaml-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/gems/gems/%{ruby_full}/specifications/default/zlib-1.1.0.gemspec
@@ -1065,7 +1065,7 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/strscan-1.0.3.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/timeout-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/tracer-0.1.0.gemspec
-/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/uri-0.10.0.gemspec
+/opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/uri-0.10.0.2.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/webrick-%{webrick_base_version}.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/yaml-0.1.0.gemspec
 /opt/cpanel/ea-ruby27/root/usr/share/ruby/gems/%{ruby_full}/specifications/default/zlib-1.1.0.gemspec
@@ -2606,6 +2606,11 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Fri Mar 31 2023 Cory McIntire <cory@cpanel.net> - 2.7.8-1
+- EA-11327: Update ea-ruby27 from v2.7.7 to v2.7.8
+- CVE-2023-28755: ReDoS vulnerability in URI
+- CVE-2023-28756: ReDoS vulnerability in Time
+
 * Thu Nov 24 2022 Travis Holloway <t.holloway@cpanel.net> - 2.7.7-1
 - EA-11073: Update ea-ruby27 from v2.7.6 to v2.7.7
 
