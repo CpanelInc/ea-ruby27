@@ -1,3 +1,6 @@
+%define debug_package %{nil}
+%define _enable_debug_packages %{nil}
+
 # Defining the package namespace
 %global ns_name ea
 %global ns_dir /opt/cpanel
@@ -63,7 +66,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 2
+%define release_prefix 3
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -2606,6 +2609,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Wed May 17 2023 Julian Brown <julian.brown@cpanel.net> - 2.7.8-3
+- ZC-10950: Fix build problems
+
 * Tue May 09 2023 Brian Mendoza <brian.mendoza@cpanel.net> - 2.7.8-2
 - ZC-10936: Clean up Makefile and remove debug-package-nil
 
