@@ -9,7 +9,6 @@ package ea_ruby::find_latest_version;
 use strict;
 use warnings;
 
-use Cpanel::JSON             ();
 use HTML::TreeBuilder::XPath ();
 
 use FindBin;
@@ -27,7 +26,7 @@ ea4_tool::util::find_latest_version( \&_get_required, \&_add_sum ) if !caller();
 sub _get_required {
     my ($http) = @_;
 
-    my ($version, $name, $url);
+    my ( $version, $name, $url );
 
     my $res = $http->get("https://www.ruby-lang.org/en/downloads/");
     if ( !$res->{success} ) {
@@ -41,7 +40,7 @@ sub _get_required {
     foreach my $node (@nodes) {
         my $href = $node->attr('href');
         if ( $href && index( $href, 'https://cache.ruby-lang.org/pub/ruby/2.7' ) == 0 ) {
-            my $idx = rindex( $href, '/' );
+            my $idx        = rindex( $href, '/' );
             my $gz_tarball = substr( $href, $idx + 1 );
 
             # ruby-2.7.1.tar.gz
