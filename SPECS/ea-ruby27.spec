@@ -66,7 +66,7 @@
 #
 # If any of the rubygems were not updated then the release_prefix *MUST* be bumped, as yum will not be
 # able to properly handle the dependencies otherwise.
-%define release_prefix 4
+%define release_prefix 5
 
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
@@ -178,7 +178,6 @@ Source100: load.inc
 #
 # Note that this must be invoked in the spec file, preferably as
 # "%%{?ruby_default_filter}", before any %%description block.
-ruby 2.7 has reached End of Life.
 
 %global ruby_default_filter %{expand: \
 %global __provides_exclude_from %{?__provides_exclude_from:%{__provides_exclude_from}|}^(%{ruby_vendorarchdir}|%{ruby_sitearchdir})/.*\\\\.so$ \
@@ -220,7 +219,6 @@ gem install \\\
 #
 # Note that this must be invoked in the spec file, preferably as
 # "%%{?rubygems_default_filter}", before any %description block.
-ruby 2.7 has reached End of Life.
 
 %global rubygems_default_filter %{expand: \
 %global __provides_exclude_from %{?__provides_exclude_from:%{__provides_exclude_from}|}^%{gem_extdir_mri}/.*\\\\.so$ \
@@ -2653,6 +2651,9 @@ EOF}
 /opt/cpanel/ea-ruby27/root/usr/share/gems/specifications/xmlrpc.gemspec
 
 %changelog
+* Thu Apr 16 2026 Dan Muey <daniel.muey@webpros.com> - 2.7.8-5
+- EA4-173: fix typo introduced by `et eol`
+
 * Wed Apr 08 2026 Brian Mendoza <brian.mendoza@webpros.com> - 2.7.8-4
 - EA4-173: Mark ea-ruby27 as EOL
 
